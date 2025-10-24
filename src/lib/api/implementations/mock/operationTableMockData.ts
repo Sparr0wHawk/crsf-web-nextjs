@@ -13,7 +13,7 @@ import type {
   Operation,
   StatusPiece,
   StatusType
-} from '../contracts/operationTable.contract';
+} from '../../contracts/operationTable.contract';
 
 // ============================================================================
 // Master Data (Dropdowns)

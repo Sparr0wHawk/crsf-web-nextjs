@@ -15,7 +15,7 @@ import type {
   ScheduleUpdate,
   StatusDetail,
   OperationTableHeader,
-} from '../contracts/operationTable.contract';
+} from '../../contracts/operationTable.contract';
 
 import {
   mockSections,
@@ -24,7 +24,7 @@ import {
   mockSortOptions,
   mockDispositionDivisions,
   mockOperations,
-} from './mockData';
+} from './operationTableMockData';
 
 export class MockOperationTableAPI implements IOperationTableAPI {
   private delay = 500; // Simulate 500ms network latency

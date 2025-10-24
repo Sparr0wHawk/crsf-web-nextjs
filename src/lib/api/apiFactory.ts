@@ -1,38 +1,61 @@
 import type { IOperationTableAPI } from './contracts/operationTable.contract';
-import { MockOperationTableAPI } from './implementations/mockApi';
+import type { IVehicleReservationAPI } from './contracts/vehicleReservation.contract';
+import { MockOperationTableAPI } from './implementations/mock/operationTableMockApi';
+import { RealOperationTableAPI } from './implementations/real/operationTableRealApi';
+import { MockVehicleReservationAPI } from './implementations/mock/vehicleReservationMockApi';
+import { RealVehicleReservationAPI } from './implementations/real/vehicleReservationRealApi';
 
 /**
  * API Factory - Central place to switch between API implementations
  * 
- * In POC: Returns MockOperationTableAPI
- * In Production: Returns RealOperationTableAPI
+ * In POC: Returns Mock APIs
+ * In Production: Returns Real APIs
  * 
  * Switch via environment variable: NEXT_PUBLIC_USE_MOCK_API
  */
 
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
-let apiInstance: IOperationTableAPI | null = null;
+// Singleton instances for each API
+let operationTableInstance: IOperationTableAPI | null = null;
+let vehicleReservationInstance: IVehicleReservationAPI | null = null;
 
+/**
+ * Get Operation Table API instance
+ */
 export function getOperationTableAPI(): IOperationTableAPI {
-  if (!apiInstance) {
+  if (!operationTableInstance) {
     if (USE_MOCK_API) {
-      console.log('🎭 Using Mock API (POC Mode)');
-      apiInstance = new MockOperationTableAPI();
+      console.log('🎭 Using Mock Operation Table API (POC Mode)');
+      operationTableInstance = new MockOperationTableAPI();
     } else {
-      // In production, this would return RealOperationTableAPI
-      console.log('🌐 Using Real API (Production Mode)');
-      throw new Error('Real API not implemented yet. Set NEXT_PUBLIC_USE_MOCK_API=true');
+      console.log('🌐 Using Real Operation Table API (Production Mode)');
+      operationTableInstance = new RealOperationTableAPI();
     }
   }
-  
-  // TypeScript: apiInstance is guaranteed to be non-null here
-  return apiInstance!;
+  return operationTableInstance!;
 }
 
 /**
- * Reset API instance (useful for testing)
+ * Get Vehicle Reservation API instance
  */
-export function resetAPIInstance() {
-  apiInstance = null;
+export function getVehicleReservationAPI(): IVehicleReservationAPI {
+  if (!vehicleReservationInstance) {
+    if (USE_MOCK_API) {
+      console.log('🎭 Using Mock Vehicle Reservation API (POC Mode)');
+      vehicleReservationInstance = new MockVehicleReservationAPI();
+    } else {
+      console.log('🌐 Using Real Vehicle Reservation API (Production Mode)');
+      vehicleReservationInstance = new RealVehicleReservationAPI();
+    }
+  }
+  return vehicleReservationInstance!;
+}
+
+/**
+ * Reset API instances (useful for testing)
+ */
+export function resetAPIInstances() {
+  operationTableInstance = null;
+  vehicleReservationInstance = null;
 }

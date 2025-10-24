@@ -39,3 +39,34 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# old system reference files (contains source code from legacy Java/Backbone system)
+/refer/
+
+# backup files
+*.bak
+*.backup
+*.tmp
+*.swp
+*.swo
+*~
+
+# IDE and editor files
+.vscode/
+.idea/
+*.sublime-*
+.history/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Analysis and planning documents (optional - uncomment to ignore)
+# ANALYSIS_SUMMARY.md
+# API_ARCHITECTURE_DIAGRAM.md
+# API_QUICK_REFERENCE.md
+# API_STRATEGY.md
+# COMPARISON.md
+# PROJECT_PLAN.md
+# WHY_REACT.md

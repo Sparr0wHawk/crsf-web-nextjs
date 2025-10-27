@@ -5,6 +5,7 @@
 ### 1. **Reorganized API Structure**
 
 Before:
+
 ```
 src/lib/api/
 ├── apiFactory.ts
@@ -16,6 +17,7 @@ src/lib/api/
 ```
 
 **After (New Structure):**
+
 ```
 src/lib/api/
 ├── apiFactory.ts                                   # ✅ Updated
@@ -37,9 +39,11 @@ src/lib/api/
 ## 📝 New Files Created
 
 ### 1. **httpClient.ts** - HTTP Request Handler
+
 **Location:** `src/lib/api/implementations/real/httpClient.ts`
 
 **Features:**
+
 - ✅ Axios instance with base URL configuration
 - ✅ Request interceptor for authentication (Bearer token)
 - ✅ Response interceptor for error handling
@@ -47,31 +51,36 @@ src/lib/api/
 - ✅ Development logging
 
 **Configuration:**
+
 ```typescript
-baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080'
-timeout: 30000 // 30 seconds
+baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+timeout: 30000; // 30 seconds
 ```
 
 **Usage:**
+
 ```typescript
-import httpClient from './httpClient';
+import httpClient from "./httpClient";
 
 // Automatically adds auth header if token exists
-const response = await httpClient.get('/api/v1/operation-table/initialize');
+const response = await httpClient.get("/api/v1/operation-table/initialize");
 ```
 
 ---
 
 ### 2. **operationTableRealApi.ts** - Production API Implementation
+
 **Location:** `src/lib/api/implementations/real/operationTableRealApi.ts`
 
 **Features:**
+
 - ✅ Implements `IOperationTableAPI` contract
 - ✅ Uses `httpClient` for all HTTP requests
 - ✅ Proper error handling with `APIError`
 - ✅ Maps all 6 contract methods to backend endpoints
 
 **Backend Endpoints Required:**
+
 ```
 GET  /api/v1/operation-table/initialize
 POST /api/v1/operation-table/search
@@ -84,9 +93,11 @@ GET  /api/v1/operation-table/status/{pieceId}
 ---
 
 ### 3. **errorHandler.ts** - Global Error Utilities
+
 **Location:** `src/lib/api/utils/errorHandler.ts`
 
 **Features:**
+
 - ✅ `isAPIError()` - Type guard for API errors
 - ✅ `getErrorMessage()` - Extract user-friendly error messages
 - ✅ `getErrorStatus()` - Get HTTP status code
@@ -94,13 +105,14 @@ GET  /api/v1/operation-table/status/{pieceId}
 - ✅ `formatErrorForDisplay()` - Format errors for UI display
 
 **Usage:**
+
 ```typescript
-import { getErrorMessage, logError } from '@/lib/api/utils/errorHandler';
+import { getErrorMessage, logError } from "@/lib/api/utils/errorHandler";
 
 try {
   await api.search(params);
 } catch (error) {
-  logError(error, 'OperationTableSearch');
+  logError(error, "OperationTableSearch");
   toast.error(getErrorMessage(error));
 }
 ```
@@ -108,9 +120,11 @@ try {
 ---
 
 ### 4. **API_ARCHITECTURE.md** - Complete Guide
+
 **Location:** `API_ARCHITECTURE.md`
 
 **Includes:**
+
 - ✅ How to add new search pages (city/province example)
 - ✅ Contract → Mock → Real → Hooks → Page workflow
 - ✅ Real API file structure recommendations
@@ -123,19 +137,24 @@ try {
 ## 🔄 How to Switch Between Mock and Real API
 
 ### **Current State:** Mock API (POC Mode)
+
 `.env.local`:
+
 ```bash
 NEXT_PUBLIC_USE_MOCK_API=true
 ```
 
 ### **Future State:** Real API (Production Mode)
+
 `.env.local`:
+
 ```bash
 NEXT_PUBLIC_USE_MOCK_API=false
 NEXT_PUBLIC_API_BASE_URL=https://api.production.com
 ```
 
-**The Switch is Automatic!** 
+**The Switch is Automatic!**
+
 - No code changes needed in components
 - `apiFactory.ts` handles everything
 - Same interface, different implementation
@@ -147,6 +166,7 @@ NEXT_PUBLIC_API_BASE_URL=https://api.production.com
 Follow this pattern:
 
 ### Step 1: Create Contract
+
 ```typescript
 // src/lib/api/contracts/citySearch.contract.ts
 export interface ICitySearchAPI {
@@ -157,6 +177,7 @@ export interface ICitySearchAPI {
 ```
 
 ### Step 2: Create Mock Implementation
+
 ```typescript
 // src/lib/api/implementations/mock/citySearchMockApi.ts
 export class MockCitySearchAPI implements ICitySearchAPI {
@@ -167,17 +188,19 @@ export class MockCitySearchAPI implements ICitySearchAPI {
 ```
 
 ### Step 3: Create Real Implementation
+
 ```typescript
 // src/lib/api/implementations/real/citySearchRealApi.ts
 export class RealCitySearchAPI implements ICitySearchAPI {
   async getProvinces(): Promise<Province[]> {
-    const response = await httpClient.get('/api/v1/cities/provinces');
+    const response = await httpClient.get("/api/v1/cities/provinces");
     return response.data;
   }
 }
 ```
 
 ### Step 4: Add to Factory
+
 ```typescript
 // src/lib/api/apiFactory.ts
 export function getCitySearchAPI(): ICitySearchAPI {
@@ -190,18 +213,20 @@ export function getCitySearchAPI(): ICitySearchAPI {
 ```
 
 ### Step 5: Create Hooks
+
 ```typescript
 // src/lib/hooks/useCitySearch.ts
 export function useProvinces() {
   const api = getCitySearchAPI();
   return useQuery({
-    queryKey: ['provinces'],
+    queryKey: ["provinces"],
     queryFn: () => api.getProvinces(),
   });
 }
 ```
 
 ### Step 6: Create Page
+
 ```typescript
 // src/app/city-search/page.tsx
 export default function CitySearchPage() {
@@ -214,11 +239,11 @@ export default function CitySearchPage() {
 
 ## 📊 Current Implementation Status
 
-| Component | Mock API | Real API | Status |
-|-----------|----------|----------|---------|
-| Operation Table | ✅ Complete | ✅ Ready | Mock Active |
-| City Search | ❌ Not Started | ❌ Not Started | Future |
-| Province Search | ❌ Not Started | ❌ Not Started | Future |
+| Component       | Mock API       | Real API       | Status      |
+| --------------- | -------------- | -------------- | ----------- |
+| Operation Table | ✅ Complete    | ✅ Ready       | Mock Active |
+| City Search     | ❌ Not Started | ❌ Not Started | Future      |
+| Province Search | ❌ Not Started | ❌ Not Started | Future      |
 
 ---
 
@@ -227,6 +252,7 @@ export default function CitySearchPage() {
 When your backend team implements the API, they need to provide these endpoints:
 
 ### **Operation Table API**
+
 ```
 Base Path: /api/v1/operation-table
 
@@ -252,6 +278,7 @@ GET  /status/{pieceId}
 ```
 
 ### **Authentication**
+
 - Bearer token in Authorization header
 - Token stored in `localStorage` as `auth_token`
 - 401 → Auto redirect to `/login`
@@ -261,29 +288,35 @@ GET  /status/{pieceId}
 ## 🧪 Testing Strategy
 
 ### **Development (Mock API)**
+
 ```bash
 # .env.local
 NEXT_PUBLIC_USE_MOCK_API=true
 ```
+
 - Fast iteration
 - No backend dependency
 - Realistic test data
 
 ### **Integration Testing (Real API)**
+
 ```bash
 # .env.local
 NEXT_PUBLIC_USE_MOCK_API=false
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
 ```
+
 - Test with real backend
 - Catch integration issues early
 
 ### **Production**
+
 ```bash
 # .env.production
 NEXT_PUBLIC_USE_MOCK_API=false
 NEXT_PUBLIC_API_BASE_URL=https://api.production.com
 ```
+
 - Full production mode
 - Real data
 
@@ -292,12 +325,14 @@ NEXT_PUBLIC_API_BASE_URL=https://api.production.com
 ## 📚 Documentation Files
 
 1. **API_ARCHITECTURE.md** (New)
+
    - Complete guide for adding search pages
    - City/Province example with full code
    - Migration strategy
    - Best practices
 
 2. **PROJECT_OVERVIEW.md** (Existing)
+
    - Overall project architecture
    - Tech stack
    - Folder structure
@@ -312,18 +347,21 @@ NEXT_PUBLIC_API_BASE_URL=https://api.production.com
 ## ✅ Next Steps
 
 ### **Immediate (Still POC Mode)**
+
 1. ✅ Continue with mock API
 2. ✅ Develop UI components
 3. ✅ Test drag-and-drop functionality
 4. ✅ Refine UX
 
 ### **Backend Ready (Switch to Real API)**
+
 1. Update `.env.local`: `NEXT_PUBLIC_USE_MOCK_API=false`
 2. Update `NEXT_PUBLIC_API_BASE_URL` to backend URL
 3. Test all endpoints
 4. Handle any API differences
 
 ### **Future Features (Scale)**
+
 1. Add city search page following the pattern
 2. Add province search page
 3. Each new feature gets its own contract/mock/real
@@ -334,6 +372,7 @@ NEXT_PUBLIC_API_BASE_URL=https://api.production.com
 ## 🎓 Key Concepts
 
 ### **Contract Pattern (Interface-Driven Design)**
+
 ```
 Interface (Contract)
     ↓
@@ -348,6 +387,7 @@ App Uses Interface
 ```
 
 ### **Benefits**
+
 1. **Type Safety**: TypeScript enforces contract
 2. **Flexibility**: Easy Mock ↔ Real switching
 3. **Testability**: Mock data for tests
@@ -359,11 +399,13 @@ App Uses Interface
 ## 🔧 Troubleshooting
 
 ### **"Real API not implemented" Error**
+
 ```
 Solution: Set NEXT_PUBLIC_USE_MOCK_API=true in .env.local
 ```
 
 ### **401 Unauthorized**
+
 ```
 Check: localStorage has 'auth_token'
 Verify: Token is valid
@@ -371,6 +413,7 @@ Backend: Endpoint requires authentication
 ```
 
 ### **CORS Errors**
+
 ```
 Backend must allow:
 - Origin: http://localhost:3000
@@ -379,6 +422,7 @@ Backend must allow:
 ```
 
 ### **Import Errors After Reorganization**
+
 ```
 Old: from './implementations/mockApi'
 New: from './implementations/mock/operationTableMockApi'

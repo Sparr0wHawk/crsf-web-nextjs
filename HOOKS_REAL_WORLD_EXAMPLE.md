@@ -149,6 +149,7 @@
 ## 🎯 Key Moments Where Hooks Work
 
 ### Moment 1: Page Load
+
 ```typescript
 // Component mounts
 const { data: initData, isLoading } = useOperationTableInit();
@@ -163,6 +164,7 @@ const { data: initData, isLoading } = useOperationTableInit();
 ---
 
 ### Moment 2: User Selects Dropdown
+
 ```typescript
 // State before:
 selectedSection = ''
@@ -182,6 +184,7 @@ blocks = [{ code: '11', name: '札幌第一' }, ...]
 ---
 
 ### Moment 3: Search Button Click
+
 ```typescript
 // Before click:
 apiSearchParams = null
@@ -209,16 +212,17 @@ tableData = {
 ---
 
 ### Moment 4: Drag & Drop Update
+
 ```typescript
 // User drags schedule bar:
 const handleDragEnd = (result) => {
   const update = {
-    pieceId: 'piece-1',
-    operationId: 'op-001',
-    newStartTime: new Date('2024-01-01 10:00'),
-    newEndTime: new Date('2024-01-01 18:00'),
+    pieceId: "piece-1",
+    operationId: "op-001",
+    newStartTime: new Date("2024-01-01 10:00"),
+    newEndTime: new Date("2024-01-01 18:00"),
   };
-  
+
   // Call mutation:
   updateScheduleMutation.mutate(update);
 };
@@ -307,6 +311,7 @@ UI updates with fresh data
 ## 🎓 What Makes Hooks "Magic"
 
 ### Without Hooks (Old Way):
+
 ```typescript
 class OperationTablePage extends React.Component {
   state = {
@@ -314,11 +319,11 @@ class OperationTablePage extends React.Component {
     isLoading: false,
     error: null,
   };
-  
+
   componentDidMount() {
     this.fetchInitData();
   }
-  
+
   async fetchInitData() {
     this.setState({ isLoading: true });
     try {
@@ -329,7 +334,7 @@ class OperationTablePage extends React.Component {
       this.setState({ error, isLoading: false });
     }
   }
-  
+
   render() {
     const { initData, isLoading, error } = this.state;
     // ... rest of component
@@ -338,10 +343,11 @@ class OperationTablePage extends React.Component {
 ```
 
 ### With Hooks (Modern Way):
+
 ```typescript
 export default function OperationTablePage() {
   const { data: initData, isLoading, error } = useOperationTableInit();
-  
+
   // That's it! 90% less code.
   // Plus: automatic caching, refetching, error retry, etc.
 }
@@ -351,16 +357,16 @@ export default function OperationTablePage() {
 
 ## 📊 Side-by-Side Comparison
 
-| Feature | Manual (No Hooks) | With Hooks |
-|---------|-------------------|------------|
-| Loading State | Manually track with `useState` | Automatic `isLoading` |
-| Error Handling | Manually track with `try/catch` | Automatic `error` |
-| Caching | Implement yourself | Automatic |
-| Refetch on Focus | Implement yourself | Built-in |
-| Retry on Error | Implement yourself | Built-in |
-| Optimistic Updates | Complex to implement | Simple `onMutate` |
-| Cache Invalidation | Implement yourself | Simple `invalidateQueries` |
-| **Lines of Code** | **~100 lines** | **~10 lines** |
+| Feature            | Manual (No Hooks)               | With Hooks                 |
+| ------------------ | ------------------------------- | -------------------------- |
+| Loading State      | Manually track with `useState`  | Automatic `isLoading`      |
+| Error Handling     | Manually track with `try/catch` | Automatic `error`          |
+| Caching            | Implement yourself              | Automatic                  |
+| Refetch on Focus   | Implement yourself              | Built-in                   |
+| Retry on Error     | Implement yourself              | Built-in                   |
+| Optimistic Updates | Complex to implement            | Simple `onMutate`          |
+| Cache Invalidation | Implement yourself              | Simple `invalidateQueries` |
+| **Lines of Code**  | **~100 lines**                  | **~10 lines**              |
 
 ---
 

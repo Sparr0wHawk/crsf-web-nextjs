@@ -53,6 +53,7 @@ src/app/
 ### What to include:
 
 1. **Request/Response Types**
+
    ```typescript
    export interface ReservationSearchParams {
      startDate: Date;
@@ -60,7 +61,7 @@ src/app/
      customerName?: string;
      status?: ReservationStatus;
    }
-   
+
    export interface Reservation {
      id: string;
      reservationNumber: string;
@@ -70,10 +71,13 @@ src/app/
    ```
 
 2. **API Interface**
+
    ```typescript
    export interface IVehicleReservationAPI {
      getShops(): Promise<Shop[]>;
-     searchReservations(params: ReservationSearchParams): Promise<ReservationSearchResponse>;
+     searchReservations(
+       params: ReservationSearchParams
+     ): Promise<ReservationSearchResponse>;
      cancelReservation(id: string, reason: string): Promise<void>;
    }
    ```
@@ -87,12 +91,13 @@ src/app/
        public details?: any
      ) {
        super(message);
-       this.name = 'ReservationAPIError';
+       this.name = "ReservationAPIError";
      }
    }
    ```
 
 ### Key Points:
+
 - ✅ Use TypeScript interfaces for type safety
 - ✅ Mark optional fields with `?`
 - ✅ Use union types for enums: `'pending' | 'confirmed' | 'cancelled'`
@@ -107,19 +112,24 @@ src/app/
 ### What to include:
 
 1. **Master Data** (for dropdowns)
+
    ```typescript
    export const mockShops: Shop[] = [
-     { code: 'SH001', name: '札幌駅北口店', region: '北海道' },
-     { code: 'SH002', name: '麻生駅前店', region: '北海道' },
+     { code: "SH001", name: "札幌駅北口店", region: "北海道" },
+     { code: "SH002", name: "麻生駅前店", region: "北海道" },
    ];
    ```
 
 2. **Helper Functions** (for generating realistic data)
+
    ```typescript
-   function generateReservation(id: number, status: ReservationStatus): Reservation {
+   function generateReservation(
+     id: number,
+     status: ReservationStatus
+   ): Reservation {
      // Generate realistic test data
      return {
-       id: `RES-${String(id).padStart(5, '0')}`,
+       id: `RES-${String(id).padStart(5, "0")}`,
        // ... more fields
      };
    }
@@ -128,11 +138,14 @@ src/app/
 3. **Mock Entities**
    ```typescript
    export const mockReservations: Reservation[] = [
-     ...Array.from({ length: 10 }, (_, i) => generateReservation(i, 'confirmed')),
+     ...Array.from({ length: 10 }, (_, i) =>
+       generateReservation(i, "confirmed")
+     ),
    ];
    ```
 
 ### Key Points:
+
 - ✅ Use realistic Japanese names, addresses, etc.
 - ✅ Generate various scenarios (pending, confirmed, cancelled)
 - ✅ Include edge cases for testing
@@ -146,8 +159,10 @@ src/app/
 ### Template:
 
 ```typescript
-import type { IVehicleReservationAPI, /* ... types */ } from '../../contracts/vehicleReservation.contract';
-import { mockShops, mockReservations } from './vehicleReservationMockData';
+import type {
+  IVehicleReservationAPI /* ... types */,
+} from "../../contracts/vehicleReservation.contract";
+import { mockShops, mockReservations } from "./vehicleReservationMockData";
 
 export class MockVehicleReservationAPI implements IVehicleReservationAPI {
   private delay = 500; // Simulate network latency
@@ -157,19 +172,23 @@ export class MockVehicleReservationAPI implements IVehicleReservationAPI {
   }
 
   async getShops(): Promise<Shop[]> {
-    console.log('📡 Mock API: getShops()');
+    console.log("📡 Mock API: getShops()");
     await this.simulateDelay();
     return mockShops;
   }
 
-  async searchReservations(params: ReservationSearchParams): Promise<ReservationSearchResponse> {
-    console.log('📡 Mock API: searchReservations()', params);
+  async searchReservations(
+    params: ReservationSearchParams
+  ): Promise<ReservationSearchResponse> {
+    console.log("📡 Mock API: searchReservations()", params);
     await this.simulateDelay();
 
     // Filter logic based on params
     let filtered = [...mockReservations];
     if (params.customerName) {
-      filtered = filtered.filter(r => r.customer.name.includes(params.customerName!));
+      filtered = filtered.filter((r) =>
+        r.customer.name.includes(params.customerName!)
+      );
     }
 
     return {
@@ -179,7 +198,7 @@ export class MockVehicleReservationAPI implements IVehicleReservationAPI {
   }
 
   async cancelReservation(id: string, reason: string): Promise<void> {
-    console.log('📡 Mock API: cancelReservation()', { id, reason });
+    console.log("📡 Mock API: cancelReservation()", { id, reason });
     await this.simulateDelay();
     // Simulate cancellation
   }
@@ -187,6 +206,7 @@ export class MockVehicleReservationAPI implements IVehicleReservationAPI {
 ```
 
 ### Key Points:
+
 - ✅ Must implement ALL methods from the interface
 - ✅ Add `console.log` for debugging
 - ✅ Simulate realistic delays (500ms)
@@ -201,12 +221,14 @@ export class MockVehicleReservationAPI implements IVehicleReservationAPI {
 ### Template:
 
 ```typescript
-import type { IVehicleReservationAPI, /* ... types */ } from '../../contracts/vehicleReservation.contract';
-import { ReservationAPIError } from '../../contracts/vehicleReservation.contract';
-import httpClient from './httpClient';
+import type {
+  IVehicleReservationAPI /* ... types */,
+} from "../../contracts/vehicleReservation.contract";
+import { ReservationAPIError } from "../../contracts/vehicleReservation.contract";
+import httpClient from "./httpClient";
 
 export class RealVehicleReservationAPI implements IVehicleReservationAPI {
-  private basePath = '/api/v1/reservations';
+  private basePath = "/api/v1/reservations";
 
   async getShops(): Promise<Shop[]> {
     try {
@@ -214,14 +236,16 @@ export class RealVehicleReservationAPI implements IVehicleReservationAPI {
       return response.data;
     } catch (error: any) {
       throw new ReservationAPIError(
-        'Failed to get shops',
+        "Failed to get shops",
         error.response?.status || 500,
         error.response?.data
       );
     }
   }
 
-  async searchReservations(params: ReservationSearchParams): Promise<ReservationSearchResponse> {
+  async searchReservations(
+    params: ReservationSearchParams
+  ): Promise<ReservationSearchResponse> {
     try {
       const response = await httpClient.post<ReservationSearchResponse>(
         `${this.basePath}/search`,
@@ -230,7 +254,7 @@ export class RealVehicleReservationAPI implements IVehicleReservationAPI {
       return response.data;
     } catch (error: any) {
       throw new ReservationAPIError(
-        'Failed to search reservations',
+        "Failed to search reservations",
         error.response?.status || 500,
         error.response?.data
       );
@@ -252,6 +276,7 @@ export class RealVehicleReservationAPI implements IVehicleReservationAPI {
 ```
 
 ### Key Points:
+
 - ✅ Use `httpClient` (already configured with auth)
 - ✅ Wrap in try-catch with custom error
 - ✅ Document backend endpoints in comments
@@ -267,11 +292,11 @@ export class RealVehicleReservationAPI implements IVehicleReservationAPI {
 
 ```typescript
 // 1. Import the contract interface
-import type { IVehicleReservationAPI } from './contracts/vehicleReservation.contract';
+import type { IVehicleReservationAPI } from "./contracts/vehicleReservation.contract";
 
 // 2. Import both implementations
-import { MockVehicleReservationAPI } from './implementations/mock/vehicleReservationMockApi';
-import { RealVehicleReservationAPI } from './implementations/real/vehicleReservationRealApi';
+import { MockVehicleReservationAPI } from "./implementations/mock/vehicleReservationMockApi";
+import { RealVehicleReservationAPI } from "./implementations/real/vehicleReservationRealApi";
 
 // 3. Add singleton instance
 let vehicleReservationInstance: IVehicleReservationAPI | null = null;
@@ -280,10 +305,10 @@ let vehicleReservationInstance: IVehicleReservationAPI | null = null;
 export function getVehicleReservationAPI(): IVehicleReservationAPI {
   if (!vehicleReservationInstance) {
     if (USE_MOCK_API) {
-      console.log('🎭 Using Mock Vehicle Reservation API');
+      console.log("🎭 Using Mock Vehicle Reservation API");
       vehicleReservationInstance = new MockVehicleReservationAPI();
     } else {
-      console.log('🌐 Using Real Vehicle Reservation API');
+      console.log("🌐 Using Real Vehicle Reservation API");
       vehicleReservationInstance = new RealVehicleReservationAPI();
     }
   }
@@ -306,15 +331,16 @@ export function resetAPIInstances() {
 ### Template:
 
 ```typescript
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { getVehicleReservationAPI } from '@/lib/api/apiFactory';
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { getVehicleReservationAPI } from "@/lib/api/apiFactory";
 
 const api = getVehicleReservationAPI();
 
 // Query Keys (for cache management)
 const QUERY_KEYS = {
-  shops: ['reservations', 'shops'] as const,
-  search: (params: ReservationSearchParams) => ['reservations', 'search', params] as const,
+  shops: ["reservations", "shops"] as const,
+  search: (params: ReservationSearchParams) =>
+    ["reservations", "search", params] as const,
 };
 
 // Read Operation (useQuery)
@@ -343,13 +369,14 @@ export function useCancelReservation() {
       api.cancelReservation(id, reason),
     onSuccess: () => {
       // Invalidate cache to refetch
-      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      queryClient.invalidateQueries({ queryKey: ["reservations"] });
     },
   });
 }
 ```
 
 ### Key Points:
+
 - ✅ Use `useQuery` for GET operations (read)
 - ✅ Use `useMutation` for POST/PUT/DELETE (write)
 - ✅ Define `queryKey` for cache management
@@ -365,10 +392,14 @@ export function useCancelReservation() {
 ### Template:
 
 ```typescript
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useShops, useReservationSearch, useCancelReservation } from '@/lib/hooks/useVehicleReservation';
+import { useState } from "react";
+import {
+  useShops,
+  useReservationSearch,
+  useCancelReservation,
+} from "@/lib/hooks/useVehicleReservation";
 
 export default function ReservationSearchPage() {
   const [searchParams, setSearchParams] = useState<ReservationSearchParams>({
@@ -378,7 +409,11 @@ export default function ReservationSearchPage() {
 
   // Use hooks
   const { data: shops } = useShops();
-  const { data: results, isLoading, error } = useReservationSearch(searchParams);
+  const {
+    data: results,
+    isLoading,
+    error,
+  } = useReservationSearch(searchParams);
   const cancelMutation = useCancelReservation();
 
   return (
@@ -387,19 +422,30 @@ export default function ReservationSearchPage() {
       <TextField
         label="開始日"
         type="date"
-        value={searchParams.startDate.toISOString().split('T')[0]}
-        onChange={(e) => setSearchParams({ ...searchParams, startDate: new Date(e.target.value) })}
+        value={searchParams.startDate.toISOString().split("T")[0]}
+        onChange={(e) =>
+          setSearchParams({
+            ...searchParams,
+            startDate: new Date(e.target.value),
+          })
+        }
       />
 
       {/* Results Table */}
-      {isLoading ? <CircularProgress /> : (
+      {isLoading ? (
+        <CircularProgress />
+      ) : (
         <Table>
-          {results?.reservations.map(reservation => (
+          {results?.reservations.map((reservation) => (
             <TableRow key={reservation.id}>
               <TableCell>{reservation.reservationNumber}</TableCell>
               <TableCell>{reservation.customer.name}</TableCell>
               <TableCell>
-                <Button onClick={() => cancelMutation.mutate({ id: reservation.id, reason: '...' })}>
+                <Button
+                  onClick={() =>
+                    cancelMutation.mutate({ id: reservation.id, reason: "..." })
+                  }
+                >
                   キャンセル
                 </Button>
               </TableCell>
@@ -441,26 +487,31 @@ API Factory (getVehicleReservationAPI)
 ## ✅ Checklist for New API
 
 - [ ] **Step 1:** Create contract interface in `contracts/[name].contract.ts`
+
   - [ ] Define request/response types
   - [ ] Define API interface
   - [ ] Create custom error class
 
 - [ ] **Step 2:** Create mock data in `implementations/mock/[name]MockData.ts`
+
   - [ ] Master data (dropdowns)
   - [ ] Helper functions
   - [ ] Mock entities
 
 - [ ] **Step 3:** Create mock API in `implementations/mock/[name]MockApi.ts`
+
   - [ ] Implement interface
   - [ ] Add delays
   - [ ] Add filtering logic
 
 - [ ] **Step 4:** Create real API in `implementations/real/[name]RealApi.ts`
+
   - [ ] Implement interface
   - [ ] Use httpClient
   - [ ] Add error handling
 
 - [ ] **Step 5:** Update `apiFactory.ts`
+
   - [ ] Import contract
   - [ ] Import implementations
   - [ ] Add singleton instance
@@ -468,11 +519,13 @@ API Factory (getVehicleReservationAPI)
   - [ ] Update reset function
 
 - [ ] **Step 6:** Create hooks in `hooks/use[Name].ts`
+
   - [ ] Define query keys
   - [ ] Create useQuery hooks
   - [ ] Create useMutation hooks
 
 - [ ] **Step 7:** Create page in `app/[page-name]/page.tsx`
+
   - [ ] Import hooks
   - [ ] Build UI
   - [ ] Handle loading/error states
@@ -520,6 +573,7 @@ For **Vehicle Reservation Search**, we created:
 ## 💡 Tips
 
 ### Naming Conventions:
+
 - Contract: `[feature].contract.ts`
 - Mock Data: `[feature]MockData.ts`
 - Mock API: `[feature]MockApi.ts`
@@ -528,6 +582,7 @@ For **Vehicle Reservation Search**, we created:
 - Page: `[kebab-case]/page.tsx`
 
 ### Best Practices:
+
 - ✅ Keep contracts small and focused
 - ✅ Use realistic mock data (Japanese names, addresses)
 - ✅ Add JSDoc comments for complex types

@@ -11,7 +11,8 @@ Modern web application for Car Rental System & Fleet Management, rebuilt from le
 ## ✨ Features (POC)
 
 ### ✅ Implemented
-- **Web稼働表 (Operation Table)** - PT04000
+
+- **Web 稼働表 (Operation Table)** - PT04000
   - Time-chart scheduling interface (72 hours / 2 weeks view)
   - Drag-and-drop vehicle scheduling
   - 1-hour based grid system
@@ -20,7 +21,6 @@ Modern web application for Car Rental System & Fleet Management, rebuilt from le
   - Cascading and dependent dropdowns
   - Print functionality (A3 landscape)
   - Tooltips and detail modals
-  
 - **Menu Page** - OT02000
   - Main navigation interface
   - Card-based layout
@@ -28,6 +28,7 @@ Modern web application for Car Rental System & Fleet Management, rebuilt from le
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js 18+ and npm
 - Git
 
@@ -61,7 +62,7 @@ npm run lint     # Run ESLint
 - **Framework:** Next.js 15.5.6 (App Router)
 - **Language:** TypeScript 5
 - **UI:** Material-UI 7.3.4 + Tailwind CSS 4
-- **State Management:** 
+- **State Management:**
   - TanStack React Query 5.90.5 (server state)
   - Zustand 5.0.8 (client state)
 - **Forms:** React Hook Form 7.65.0 + Zod 4.1.12
@@ -90,12 +91,14 @@ src/
 ## 📚 Documentation
 
 - **[PROJECT_OVERVIEW.md](./PROJECT_OVERVIEW.md)** - Comprehensive project documentation
+
   - Architecture patterns
   - Best practices
   - Areas for improvement
   - Security considerations
 
 - **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** - Quick start guide for developers
+
   - Common tasks
   - Code patterns
   - API integration
@@ -108,17 +111,20 @@ src/
 ## 🎨 Code Architecture
 
 ### API Layer Pattern
+
 ```
 Component → Custom Hook → API Factory → API Contract → Implementation (Mock/Real)
 ```
 
 **Benefits:**
+
 - Easy switching between mock and production APIs
 - Type-safe API calls
 - Testable code
 - Clear separation of concerns
 
 ### Example: Data Fetching
+
 ```typescript
 // 1. Define contract
 export interface IOperationTableAPI {
@@ -128,7 +134,7 @@ export interface IOperationTableAPI {
 // 2. Create hook
 export function useOperationTableData(params: SearchParams) {
   return useQuery({
-    queryKey: ['operationTable', 'data', params],
+    queryKey: ["operationTable", "data", params],
     queryFn: async () => {
       const api = getOperationTableAPI(); // Factory
       return api.search(params);
@@ -145,6 +151,7 @@ const { data, isLoading } = useOperationTableData(searchParams);
 **Status:** Not yet implemented
 
 **Recommended:**
+
 - Jest + React Testing Library (unit/integration)
 - Playwright or Cypress (E2E)
 - Target coverage: >80%
@@ -177,12 +184,14 @@ npm run start
 ### Recommended Platforms
 
 1. **Vercel** (Easiest)
+
    ```bash
    # Push to GitHub - automatic deployment
    git push origin master
    ```
 
 2. **Docker** (For AWS/Azure)
+
    ```dockerfile
    FROM node:18-alpine
    WORKDIR /app
@@ -201,6 +210,7 @@ npm run start
 ## 🤝 Contributing
 
 ### Branch Strategy
+
 ```bash
 # Feature
 git checkout -b feature/add-reports
@@ -213,6 +223,7 @@ git checkout -b refactor/api-layer
 ```
 
 ### Commit Convention
+
 ```
 feat: add new feature
 fix: bug fix
@@ -223,6 +234,7 @@ chore: maintenance
 ```
 
 ### Code Style
+
 - Use TypeScript interfaces for all contracts
 - Feature-based folder organization
 - Custom hooks for all API calls
@@ -249,6 +261,7 @@ chore: maintenance
 ## 🗺️ Roadmap
 
 ### Phase 1: Production Foundation (Next)
+
 - [ ] Add authentication (NextAuth.js)
 - [ ] Implement real API integration
 - [ ] Add unit and E2E tests
@@ -256,12 +269,14 @@ chore: maintenance
 - [ ] Performance optimization
 
 ### Phase 2: Feature Expansion
+
 - [ ] Additional CRS features
 - [ ] Reporting module
 - [ ] Vehicle management
 - [ ] Customer management
 
 ### Phase 3: Enhancement
+
 - [ ] Mobile app (React Native)
 - [ ] Offline support
 - [ ] Advanced analytics
@@ -279,6 +294,7 @@ Private - Internal Use Only
 ## 🙏 Acknowledgments
 
 Built with:
+
 - [Next.js](https://nextjs.org/)
 - [Material-UI](https://mui.com/)
 - [TanStack Query](https://tanstack.com/query)

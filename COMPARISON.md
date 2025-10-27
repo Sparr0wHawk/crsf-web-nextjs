@@ -9,6 +9,7 @@
 ### **OLD SYSTEM (Backbone.js + jQuery + Thymeleaf)**
 
 #### **Step 1: HTML Template (Thymeleaf)**
+
 ```html
 <!-- PT04000.html - Server renders this -->
 <div class="operation-table">
@@ -16,71 +17,77 @@
     <tr data-th-each="operation: ${operationTableGraphDataList}">
       <td data-th-text="${operation.registNumber}">1123022224</td>
       <td data-th-text="${operation.carName}">アルファード</td>
-      <td data-th-each="piece: ${operation.pieceInformationList}"
-          data-th-style="'background-color: ' + ${piece.pieceColor}"
-          data-th-colspan="${piece.pieceLength}">
-      </td>
+      <td
+        data-th-each="piece: ${operation.pieceInformationList}"
+        data-th-style="'background-color: ' + ${piece.pieceColor}"
+        data-th-colspan="${piece.pieceLength}"
+      ></td>
     </tr>
   </table>
 </div>
 ```
 
 #### **Step 2: Backbone Model (JavaScript)**
+
 ```javascript
 // WebOperationTableModel.js
 var WebOperationTableModel = Backbone.Model.extend({
   urlRoot: "/web-operation-table",
   defaults: {
-    sectionCode: '',
-    blockCode: '',
-    searchDate: ''
-  }
+    sectionCode: "",
+    blockCode: "",
+    searchDate: "",
+  },
 });
 ```
 
 #### **Step 3: Backbone View (jQuery)**
+
 ```javascript
 // WebOperationTableView.js - 500 lines of DOM manipulation
 var WebOperationTableView = Backbone.View.extend({
   events: {
-    'change select[name="sectionCode"]': 'onSectionChange',
-    'click button[name="searchButton"]': 'onSearchClick'
+    'change select[name="sectionCode"]': "onSectionChange",
+    'click button[name="searchButton"]': "onSearchClick",
   },
-  
-  onSectionChange: function(e) {
+
+  onSectionChange: function (e) {
     var sectionCode = $(e.target).val();
-    this.model.set('sectionCode', sectionCode);
+    this.model.set("sectionCode", sectionCode);
     this.updateBlockList(sectionCode);
   },
-  
-  updateBlockList: function(sectionCode) {
+
+  updateBlockList: function (sectionCode) {
     var self = this;
     $.ajax({
-      url: '/web-operation-table/blocks?section=' + sectionCode,
-      success: function(data) {
+      url: "/web-operation-table/blocks?section=" + sectionCode,
+      success: function (data) {
         self.$el.find('select[name="blockCode"]').empty();
-        data.forEach(function(block) {
-          self.$el.find('select[name="blockCode"]').append(
-            '<option value="' + block.code + '">' + block.name + '</option>'
-          );
+        data.forEach(function (block) {
+          self.$el
+            .find('select[name="blockCode"]')
+            .append(
+              '<option value="' + block.code + '">' + block.name + "</option>"
+            );
         });
-      }
+      },
     });
   },
-  
-  onSearchClick: function(e) {
+
+  onSearchClick: function (e) {
     e.preventDefault();
     this.model.save(null, {
-      success: function() {
+      success: function () {
         // Full page reload!
         location.reload();
-      }
+      },
     });
-  }
+  },
 });
 ```
 
 #### **Step 4: Java Controller**
+
 ```java
 // WebOperationTableController.java
 @RequestMapping(value = "/search", method = RequestMethod.POST)
@@ -91,23 +98,24 @@ public String search(@ModelAttribute WebOperationTableScreenParameter param,
         model.addAttribute("error", "Date is required");
         return "PT04/PT04000";
     }
-    
+
     // Call business logic
     WebOperationTableMAO result = facade.search(param);
-    
+
     // Transform to screen format
     WebOperationTableScreenParameter screen = helper.convert(result);
-    
+
     // Add to model for Thymeleaf
     model.addAttribute("operationTableGraphDataList", screen.getDataList());
     model.addAttribute("screenParameter", param);
-    
+
     // Render full page again
     return "PT04/PT04000";
 }
 ```
 
 **TOTAL:**
+
 - 4 different files
 - 3 different languages (HTML, JavaScript, Java)
 - ~700+ lines of code
@@ -120,13 +128,14 @@ public String search(@ModelAttribute WebOperationTableScreenParameter param,
 ### **NEW SYSTEM (React + TypeScript + Next.js)**
 
 #### **Single File: OperationTablePage.tsx**
+
 ```typescript
 // src/app/operation-table/page.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { TextField, Select, MenuItem, Button } from '@mui/material';
+import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { TextField, Select, MenuItem, Button } from "@mui/material";
 
 // Type safety - compiler catches errors!
 interface SearchForm {
@@ -147,25 +156,29 @@ interface Operation {
 
 export default function OperationTablePage() {
   const [searchForm, setSearchForm] = useState<SearchForm>({
-    sectionCode: '',
-    blockCode: '',
+    sectionCode: "",
+    blockCode: "",
     searchDate: new Date(),
   });
 
   // Automatic cascading dropdown - refetches when sectionCode changes
   const { data: blocks } = useQuery({
-    queryKey: ['blocks', searchForm.sectionCode],
-    queryFn: () => fetch(`/api/blocks?section=${searchForm.sectionCode}`).then(r => r.json()),
+    queryKey: ["blocks", searchForm.sectionCode],
+    queryFn: () =>
+      fetch(`/api/blocks?section=${searchForm.sectionCode}`).then((r) =>
+        r.json()
+      ),
     enabled: !!searchForm.sectionCode, // Only fetch if section selected
   });
 
   // Smart caching, automatic refetching, loading states
   const { data: operations, isLoading } = useQuery<Operation[]>({
-    queryKey: ['operations', searchForm],
-    queryFn: () => fetch('/api/operation-table/search', {
-      method: 'POST',
-      body: JSON.stringify(searchForm),
-    }).then(r => r.json()),
+    queryKey: ["operations", searchForm],
+    queryFn: () =>
+      fetch("/api/operation-table/search", {
+        method: "POST",
+        body: JSON.stringify(searchForm),
+      }).then((r) => r.json()),
   });
 
   return (
@@ -176,10 +189,10 @@ export default function OperationTablePage() {
           label="部"
           value={searchForm.sectionCode}
           onChange={(e) => {
-            setSearchForm({ 
-              ...searchForm, 
+            setSearchForm({
+              ...searchForm,
               sectionCode: e.target.value,
-              blockCode: '', // Auto-reset dependent field
+              blockCode: "", // Auto-reset dependent field
             });
           }}
         >
@@ -190,10 +203,12 @@ export default function OperationTablePage() {
         <Select
           label="ブロック"
           value={searchForm.blockCode}
-          onChange={(e) => setSearchForm({ ...searchForm, blockCode: e.target.value })}
+          onChange={(e) =>
+            setSearchForm({ ...searchForm, blockCode: e.target.value })
+          }
           disabled={!searchForm.sectionCode} // Smart UI
         >
-          {blocks?.map(block => (
+          {blocks?.map((block) => (
             <MenuItem key={block.code} value={block.code}>
               {block.name}
             </MenuItem>
@@ -230,6 +245,7 @@ export default function OperationTablePage() {
 ```
 
 **TOTAL:**
+
 - 1 file
 - 1 language (TypeScript)
 - ~90 lines of code
@@ -246,6 +262,7 @@ export default function OperationTablePage() {
 ### **User Interaction Flow**
 
 #### **OLD SYSTEM:**
+
 ```
 User clicks search button
     ↓
@@ -275,6 +292,7 @@ TOTAL: 3-5 seconds, full page reload
 ```
 
 #### **REACT:**
+
 ```
 User changes filter
     ↓
@@ -373,26 +391,28 @@ TOTAL: 0-500ms, no page reload, smooth
 ## 💾 State Management Comparison
 
 ### **OLD SYSTEM: Manual, Error-Prone**
+
 ```javascript
 // Data scattered everywhere
 var sectionCode = $('select[name="section"]').val();
 var blockCode = $('select[name="block"]').val();
-var searchDate = $('#searchDate').val();
+var searchDate = $("#searchDate").val();
 
 // No single source of truth
 // Easy to get out of sync
 // Hard to debug
 
 // To update UI:
-$('.result-table').html(newHtml); // Destroy & rebuild
+$(".result-table").html(newHtml); // Destroy & rebuild
 ```
 
 ### **REACT: Centralized, Automatic**
+
 ```typescript
 // Single source of truth
 const [state, setState] = useState({
-  sectionCode: '',
-  blockCode: '',
+  sectionCode: "",
+  blockCode: "",
   searchDate: new Date(),
 });
 
@@ -401,7 +421,7 @@ const [state, setState] = useState({
 // Easy to debug with React DevTools
 
 // To update UI:
-setState({ ...state, sectionCode: '1' }); // React handles DOM
+setState({ ...state, sectionCode: "1" }); // React handles DOM
 ```
 
 ---
@@ -413,11 +433,13 @@ setState({ ...state, sectionCode: '1' }); // React handles DOM
 #### **OLD SYSTEM:**
 
 **Step 1: Update HTML** (PT04000.html)
+
 ```html
 <button id="clearButton" class="btn">Clear</button>
 ```
 
 **Step 2: Update View** (WebOperationTableView.js)
+
 ```javascript
 events: {
   'click #clearButton': 'onClearClick'
@@ -432,11 +454,11 @@ onClearClick: function() {
   this.$el.find('input[name="classCode2"]').val('');
   this.$el.find('input[name="classCode3"]').val('');
   // ... 20 more fields
-  
+
   // Update model
   this.model.clear();
   this.model.set(this.model.defaults);
-  
+
   // Manually clear result table
   this.$el.find('.result-table').empty();
 }
@@ -447,9 +469,11 @@ onClearClick: function() {
 #### **REACT:**
 
 ```typescript
-<Button onClick={() => {
-  setSearchForm(initialState); // One line!
-}}>
+<Button
+  onClick={() => {
+    setSearchForm(initialState); // One line!
+  }}
+>
   Clear
 </Button>
 
@@ -464,12 +488,13 @@ onClearClick: function() {
 ## 🐛 Debugging Comparison
 
 ### **OLD SYSTEM:**
+
 ```javascript
 // Something broke... but where?
 console.log("1. Section code:", sectionCode); // undefined? null? wrong value?
 console.log("2. Model:", this.model.toJSON());
-console.log("3. View state:", this.$el.find('select').val());
-console.log("4. DOM state:", document.querySelector('select').value);
+console.log("3. View state:", this.$el.find("select").val());
+console.log("4. DOM state:", document.querySelector("select").value);
 
 // Data could be in 4+ different places
 // No way to see history of changes
@@ -477,6 +502,7 @@ console.log("4. DOM state:", document.querySelector('select').value);
 ```
 
 ### **REACT:**
+
 ```typescript
 // Open React DevTools (F12)
 // See ENTIRE state tree
@@ -490,26 +516,27 @@ console.log("4. DOM state:", document.querySelector('select').value);
 
 ## 🎯 Bottom Line
 
-| Metric | Old System | React | Winner |
-|--------|-----------|-------|--------|
-| **Lines of code** | 700+ | 90 | React (8x less) |
-| **Files to edit** | 4-6 | 1 | React |
-| **Languages** | 3 | 1 | React |
-| **Page reload** | Always | Never | React |
-| **Load time** | 3-5s | 0.5-1s | React (4x faster) |
-| **Type safety** | None | Full | React |
-| **Bug prevention** | Minimal | Excellent | React |
-| **Development speed** | Slow | Fast | React (6x faster) |
-| **User experience** | Poor | Excellent | React |
-| **Maintenance** | Hard | Easy | React |
+| Metric                | Old System | React     | Winner            |
+| --------------------- | ---------- | --------- | ----------------- |
+| **Lines of code**     | 700+       | 90        | React (8x less)   |
+| **Files to edit**     | 4-6        | 1         | React             |
+| **Languages**         | 3          | 1         | React             |
+| **Page reload**       | Always     | Never     | React             |
+| **Load time**         | 3-5s       | 0.5-1s    | React (4x faster) |
+| **Type safety**       | None       | Full      | React             |
+| **Bug prevention**    | Minimal    | Excellent | React             |
+| **Development speed** | Slow       | Fast      | React (6x faster) |
+| **User experience**   | Poor       | Excellent | React             |
+| **Maintenance**       | Hard       | Easy      | React             |
 
 ---
 
 ## 🚀 The Verdict
 
 **React is objectively better in every measurable way:**
+
 - ✅ Faster for users
-- ✅ Faster for developers  
+- ✅ Faster for developers
 - ✅ Fewer bugs
 - ✅ Easier to maintain
 - ✅ Better user experience

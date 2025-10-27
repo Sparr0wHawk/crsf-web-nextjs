@@ -70,16 +70,16 @@ export interface SearchResponse {
 
 export class MockOperationTableAPI implements IOperationTableAPI {
   async search(params: SearchParams): Promise<SearchResponse> {
-    await new Promise(r => setTimeout(r, 500)); // Simulate delay
+    await new Promise((r) => setTimeout(r, 500)); // Simulate delay
     return { header: mockHeader, operations: mockOperations };
   }
-  
+
   // Implement all interface methods
 }
 
 // src/lib/api/implementations/mockData.ts
 export const mockOperations = [
-  { id: 'op-001', registNumber: '1123022224', /* ... */ },
+  { id: "op-001", registNumber: "1123022224" /* ... */ },
   // 20-30 vehicles
 ];
 ```
@@ -91,7 +91,7 @@ export const mockOperations = [
 ```typescript
 // src/lib/api/apiFactory.ts
 
-const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
+const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK_API === "true";
 
 export function getOperationTableAPI(): IOperationTableAPI {
   return USE_MOCK ? new MockOperationTableAPI() : new RealOperationTableAPI();
@@ -110,14 +110,14 @@ NEXT_PUBLIC_USE_MOCK_API=true
 ```typescript
 // src/features/operation-table/hooks/useOperationTableData.ts
 
-import { useQuery } from '@tanstack/react-query';
-import { getOperationTableAPI } from '@/lib/api/apiFactory';
+import { useQuery } from "@tanstack/react-query";
+import { getOperationTableAPI } from "@/lib/api/apiFactory";
 
 export function useOperationTableData(params: SearchParams) {
   const api = getOperationTableAPI();
-  
+
   return useQuery({
-    queryKey: ['operationTable', params],
+    queryKey: ["operationTable", params],
     queryFn: () => api.search(params),
   });
 }
@@ -134,11 +134,11 @@ import { useOperationTableData, useBlockList } from '../hooks';
 
 export function SearchForm() {
   const [searchParams, setSearchParams] = useState({...});
-  
+
   // ✅ Use hook (not API directly)
   const { data, isLoading } = useOperationTableData(searchParams);
   const { data: blocks } = useBlockList(searchParams.sectionCode);
-  
+
   // Component logic...
 }
 
@@ -152,26 +152,30 @@ export function SearchForm() {
 ## 🔄 Switching to Real API (Future)
 
 **Step 1:** Create real implementation
+
 ```typescript
 // src/lib/api/implementations/realApi.ts
 
 export class RealOperationTableAPI implements IOperationTableAPI {
   async search(params: SearchParams): Promise<SearchResponse> {
-    const response = await fetch('/api/search', {
-      method: 'POST',
+    const response = await fetch("/api/search", {
+      method: "POST",
       body: JSON.stringify(params),
     });
     return this.transformResponse(await response.json());
   }
-  
+
   private transformResponse(apiData: any): SearchResponse {
     // Transform their API format to our contract
-    return { /* ... */ };
+    return {
+      /* ... */
+    };
   }
 }
 ```
 
 **Step 2:** Change environment variable
+
 ```env
 NEXT_PUBLIC_USE_MOCK_API=false
 ```
@@ -183,6 +187,7 @@ NEXT_PUBLIC_USE_MOCK_API=false
 ## 🎨 Component Development Pattern
 
 ### **❌ WRONG - Direct API Call**
+
 ```typescript
 function SearchForm() {
   const handleSearch = async () => {
@@ -194,13 +199,14 @@ function SearchForm() {
 ```
 
 ### **✅ RIGHT - Use Hook**
+
 ```typescript
 function SearchForm() {
   const [params, setParams] = useState({...});
-  
+
   // ✅ Hook handles everything
   const { data, isLoading, error } = useOperationTableData(params);
-  
+
   // UI updates automatically when params change
 }
 ```
@@ -210,24 +216,26 @@ function SearchForm() {
 ## 🧪 Testing Benefits
 
 ### **With Abstraction:**
+
 ```typescript
 // test/SearchForm.test.tsx
 
-test('renders search results', async () => {
+test("renders search results", async () => {
   // Easy to mock at hook level
-  vi.mock('../hooks/useOperationTableData', () => ({
+  vi.mock("../hooks/useOperationTableData", () => ({
     useOperationTableData: () => ({
       data: mockData,
       isLoading: false,
     }),
   }));
-  
+
   render(<SearchForm />);
   // Test component behavior
 });
 ```
 
 ### **Without Abstraction:**
+
 ```typescript
 // Would need to mock fetch, axios, or entire API class
 // Much harder to test!
@@ -242,14 +250,14 @@ When ready to build real API, give backend team this:
 ```typescript
 /**
  * API Contract for Operation Table Feature
- * 
+ *
  * All endpoints must return data matching these TypeScript interfaces.
  * Frontend will transform your response format to match these types.
  */
 
 // POST /api/operation-table/search
 interface SearchRequest {
-  searchDate: string;        // ISO 8601 format
+  searchDate: string; // ISO 8601 format
   sectionCode?: string;
   blockCode?: string;
   // ... all fields with types and constraints
@@ -257,8 +265,8 @@ interface SearchRequest {
 
 interface SearchResponse {
   header: {
-    dateList: string[];      // Format: "MM/DD(曜)"
-    timeList: string[];      // Format: "0", "6", "12", "18"
+    dateList: string[]; // Format: "MM/DD(曜)"
+    timeList: string[]; // Format: "0", "6", "12", "18"
     graphMeshCount: number;
     // ... etc
   };
@@ -287,6 +295,7 @@ interface BlocksResponse {
 ## 🎯 Summary
 
 **For POC:**
+
 1. Define contracts (interfaces)
 2. Create mock implementation
 3. Create hooks that use API factory
@@ -294,6 +303,7 @@ interface BlocksResponse {
 5. Everything works with mock data
 
 **For Production:**
+
 1. Backend team builds API (can be any format)
 2. Create real implementation that transforms to contract
 3. Change environment variable

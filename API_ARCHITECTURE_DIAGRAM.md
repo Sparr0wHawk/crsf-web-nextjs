@@ -170,6 +170,7 @@ return blocks
 ```
 
 **What changed:**
+
 - ✅ Added RealOperationTableAPI class
 - ✅ Changed environment variable
 - ❌ Zero component changes
@@ -197,10 +198,11 @@ interface Block {
 ```typescript
 class MockOperationTableAPI implements IOperationTableAPI {
   async getBlocks(sectionCode: string): Promise<Block[]> {
-    return mockBlocks.filter(b => b.sectionCode === sectionCode);
+    return mockBlocks.filter((b) => b.sectionCode === sectionCode);
   }
 }
 ```
+
 ✅ **Complies with contract** - returns `Promise<Block[]>`
 
 ### **Real Implementation**
@@ -210,18 +212,19 @@ class RealOperationTableAPI implements IOperationTableAPI {
   async getBlocks(sectionCode: string): Promise<Block[]> {
     const response = await fetch(`/api/blocks?section=${sectionCode}`);
     const data = await response.json();
-    
+
     // Customer API returns different format
     // { result: [{ id: '11', label: '札幌第一' }] }
-    
+
     // Transform to match contract
-    return data.result.map(item => ({
+    return data.result.map((item) => ({
       code: item.id,
       name: item.label,
     }));
   }
 }
 ```
+
 ✅ **Complies with contract** - returns `Promise<Block[]>`
 ✅ **Transforms customer format** - adapts to our interface
 
@@ -248,6 +251,7 @@ operationTable.contract.ts
 **Dependency Direction:** UI → Hooks → Factory → Implementation → Contract
 
 **Change a file:**
+
 - Change SearchForm.tsx → Only affects UI
 - Change useBlockList.ts → Affects all components using it
 - Change apiFactory.ts → Switches which API to use
@@ -308,21 +312,25 @@ operationTable.contract.ts
 ### **Why This Architecture?**
 
 1. **Separation of Concerns**
+
    - UI only cares about displaying data
    - Hooks only care about fetching data
    - API implementations only care about data source
 
 2. **Testability**
+
    - Test components by mocking hooks
    - Test hooks by mocking API
    - Test API implementations independently
 
 3. **Flexibility**
+
    - Switch data source with one line
    - Run POC without backend
    - Gradually migrate to new API
 
 4. **Type Safety**
+
    - Contract enforces data shape
    - TypeScript catches mismatches
    - Refactoring is safe
@@ -337,11 +345,13 @@ operationTable.contract.ts
 ## 🚀 Result
 
 **POC Development:**
+
 - Fast iteration (no waiting for backend)
 - Realistic demo (mock API simulates real behavior)
 - Full feature testing (all interactions work)
 
 **Production Deployment:**
+
 - Easy backend integration (just implement contract)
 - Zero component changes (swap at factory level)
 - Safe migration (can test both APIs side-by-side)

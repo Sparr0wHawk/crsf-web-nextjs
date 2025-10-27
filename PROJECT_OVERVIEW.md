@@ -10,33 +10,38 @@
 
 ## 🎯 Project Purpose
 
-This is a modern web application rewrite of a legacy Java/Backbone.js car rental and fleet management system. The POC focuses on the **Web稼働表 (Web Operation Table)** feature - a time-chart scheduling interface with drag-and-drop capabilities for managing vehicle operations.
+This is a modern web application rewrite of a legacy Java/Backbone.js car rental and fleet management system. The POC focuses on the **Web 稼働表 (Web Operation Table)** feature - a time-chart scheduling interface with drag-and-drop capabilities for managing vehicle operations.
 
 ## 🏗️ Architecture Overview
 
 ### Technology Stack
 
 #### Core Framework
+
 - **Next.js 15.5.6** - React framework with App Router
 - **React 19.1.0** - Latest React with concurrent features
 - **TypeScript 5** - Type-safe development
 
 #### UI Framework
+
 - **Material-UI (MUI) 7.3.4** - Component library
 - **Tailwind CSS 4** - Utility-first styling
 - **@emotion** - CSS-in-JS for MUI
 
 #### State Management & Data Fetching
+
 - **TanStack React Query 5.90.5** - Server state management with caching
 - **Zustand 5.0.8** - Client state management (ready for use)
 - **React Hook Form 7.65.0** - Form state management
 - **Zod 4.1.12** - Schema validation
 
 #### Drag & Drop
+
 - **@dnd-kit 6.3.1** - Modern drag-and-drop toolkit
   - Core, Sortable, Utilities packages
 
 #### Additional Libraries
+
 - **axios 1.12.2** - HTTP client (for production API)
 - **date-fns 4.1.0** - Date utilities
 - **@holiday-jp/holiday_jp 2.5.1** - Japanese holiday calculation
@@ -98,6 +103,7 @@ crsf-web-nextjs/
 ### 1. **Separation of Concerns**
 
 #### API Layer Architecture
+
 ```
 Features/Components
        ↓
@@ -111,12 +117,14 @@ Features/Components
 ```
 
 **Benefits:**
+
 - Easy to swap between mock and real APIs
 - Type-safe API calls
 - Centralized data fetching logic
 - No direct API calls in components
 
 #### Feature-Based Organization
+
 ```
 features/
 └── operation-table/
@@ -127,6 +135,7 @@ features/
 ```
 
 **Benefits:**
+
 - Co-location of related code
 - Easy to find and maintain
 - Can be extracted as a separate package if needed
@@ -134,6 +143,7 @@ features/
 ### 2. **TypeScript Interfaces as Contracts**
 
 All API contracts are defined in `contracts/` folder:
+
 ```typescript
 // operationTable.contract.ts
 export interface IOperationTableAPI {
@@ -145,6 +155,7 @@ export interface IOperationTableAPI {
 ```
 
 **Benefits:**
+
 - Both mock and production APIs must implement the same interface
 - Compile-time type checking
 - Self-documenting code
@@ -156,7 +167,7 @@ export interface IOperationTableAPI {
 // Custom hook pattern
 export function useOperationTableData(params: SearchParams, enabled: boolean) {
   return useQuery({
-    queryKey: ['operationTable', 'data', params],
+    queryKey: ["operationTable", "data", params],
     queryFn: async () => {
       const api = getOperationTableAPI();
       return api.search(params);
@@ -168,6 +179,7 @@ export function useOperationTableData(params: SearchParams, enabled: boolean) {
 ```
 
 **Benefits:**
+
 - Automatic caching and revalidation
 - Background refetching
 - Optimistic updates
@@ -186,6 +198,7 @@ export const searchFormSchema = z.object({
 ```
 
 **Benefits:**
+
 - Type-safe form validation
 - Runtime validation
 - Automatic TypeScript types from schema
@@ -214,6 +227,7 @@ OperationTableDisplay (Container)
 ```
 
 **Benefits:**
+
 - Reusable components
 - Easy to test individual pieces
 - Clear hierarchy and responsibilities
@@ -221,6 +235,7 @@ OperationTableDisplay (Container)
 ## ✅ Implemented Features (POC)
 
 ### 1. Menu Page (OT02000)
+
 - Main navigation page
 - Card-based layout
 - Navigation to operation table
@@ -228,6 +243,7 @@ OperationTableDisplay (Container)
 ### 2. Operation Table Page (PT04000)
 
 #### Search Form
+
 - **17+ search fields:**
   - Date picker with automatic day-of-week calculation
   - Cascading dropdowns (部 → ブロック)
@@ -240,7 +256,9 @@ OperationTableDisplay (Container)
 - **Compact layout** optimized for data entry
 
 #### Operation Table Display
+
 - **6 information columns** (2×3 layout):
+
   - 各種番号 (Registration Number)
   - 車種 (Car Model)
   - 条件 (Condition)
@@ -249,6 +267,7 @@ OperationTableDisplay (Container)
   - 運用営業所 (Operating Office)
 
 - **Time-chart grid:**
+
   - 2-row header: Dates + Hours (0-23)
   - 1-hour based cells (80px wide)
   - Supports 72 hours (3 days) or 2 weeks display
@@ -262,6 +281,7 @@ OperationTableDisplay (Container)
   - Show status text if length > 3 hours
 
 #### Drag & Drop Functionality
+
 - **Drag status bars** to different vehicles or time slots
 - **Visual feedback:** Blue highlight on drop target
 - **Time-based positioning:** Bars move to exact hour dropped
@@ -269,6 +289,7 @@ OperationTableDisplay (Container)
 - **Success notifications:** Context-aware messages
 
 #### Additional Features
+
 - **Tooltips:** Hover over status bars for details
 - **Detail modal:** Click bars to see full information
 - **Print functionality:** A3 landscape with color preservation
@@ -279,22 +300,26 @@ OperationTableDisplay (Container)
 ## 🎯 Best Practices Implemented
 
 ### ✅ **Code Organization**
+
 - Feature-based folder structure
 - Clear separation between UI, logic, and data
 - Consistent naming conventions
 
 ### ✅ **Type Safety**
+
 - Comprehensive TypeScript interfaces
 - No `any` types in production code
 - Type-safe API contracts
 
 ### ✅ **Performance**
+
 - React Query caching (5-minute stale time)
 - Lazy loading with Next.js dynamic imports (ready to use)
 - Memoization where appropriate
 - Optimized re-renders
 
 ### ✅ **User Experience**
+
 - Loading states for all async operations
 - Error messages in Japanese
 - Smooth animations
@@ -302,12 +327,14 @@ OperationTableDisplay (Container)
 - Print-friendly layout
 
 ### ✅ **Maintainability**
+
 - Self-documenting code with JSDoc comments
 - Consistent code style
 - Error boundaries for fault tolerance
 - Mock data for development/testing
 
 ### ✅ **Scalability**
+
 - API factory pattern for easy backend switching
 - Feature modules that can be extracted
 - Reusable custom hooks
@@ -316,6 +343,7 @@ OperationTableDisplay (Container)
 ## ⚠️ Areas for Improvement (Production Readiness)
 
 ### 1. **Testing** (Currently None)
+
 ```typescript
 // Recommended additions:
 - Unit tests (Jest + React Testing Library)
@@ -325,11 +353,12 @@ OperationTableDisplay (Container)
 ```
 
 ### 2. **Real API Implementation**
+
 ```typescript
 // Create RealOperationTableAPI class
 export class RealOperationTableAPI implements IOperationTableAPI {
   private baseURL: string;
-  
+
   async search(params: SearchParams): Promise<SearchResponse> {
     const response = await axios.post(`${this.baseURL}/api/search`, params);
     return response.data;
@@ -339,6 +368,7 @@ export class RealOperationTableAPI implements IOperationTableAPI {
 ```
 
 ### 3. **Environment Configuration**
+
 ```typescript
 // .env.local
 NEXT_PUBLIC_API_BASE_URL=https://api.example.com
@@ -347,12 +377,14 @@ NEXT_PUBLIC_ENABLE_DEVTOOLS=true
 ```
 
 ### 4. **Authentication & Authorization**
+
 - Implement NextAuth.js or similar
 - Add JWT token management
 - Protected routes
 - Role-based access control
 
 ### 5. **Error Handling Enhancement**
+
 ```typescript
 // Centralized error handling
 - API error interceptors
@@ -362,6 +394,7 @@ NEXT_PUBLIC_ENABLE_DEVTOOLS=true
 ```
 
 ### 6. **Performance Optimization**
+
 ```typescript
 // Additional optimizations needed:
 - Code splitting for large components
@@ -371,12 +404,14 @@ NEXT_PUBLIC_ENABLE_DEVTOOLS=true
 ```
 
 ### 7. **Accessibility (A11y)**
+
 - ARIA labels for drag-and-drop
 - Keyboard navigation support
 - Screen reader compatibility
 - Color contrast validation
 
 ### 8. **Internationalization (i18n)**
+
 ```typescript
 // If needed for multiple languages:
 - next-intl or react-i18next
@@ -385,6 +420,7 @@ NEXT_PUBLIC_ENABLE_DEVTOOLS=true
 ```
 
 ### 9. **Documentation**
+
 ```typescript
 // Additional docs needed:
 - API documentation (OpenAPI/Swagger)
@@ -394,6 +430,7 @@ NEXT_PUBLIC_ENABLE_DEVTOOLS=true
 ```
 
 ### 10. **Code Quality Tools**
+
 ```json
 // package.json additions:
 "scripts": {
@@ -409,6 +446,7 @@ NEXT_PUBLIC_ENABLE_DEVTOOLS=true
 ## 🔄 Development Workflow
 
 ### Current Setup
+
 ```bash
 # Development
 npm run dev          # Start dev server at localhost:3000
@@ -422,6 +460,7 @@ npm run lint         # Run ESLint
 ```
 
 ### Recommended Additions
+
 ```bash
 # Testing (to be added)
 npm run test         # Run all tests
@@ -437,32 +476,39 @@ npm run audit        # Security audit
 ## 📝 Configuration Files
 
 ### TypeScript Configuration (`tsconfig.json`)
+
 - **Target:** ES2017 (modern browsers)
 - **Strict mode:** Enabled for type safety
 - **Path aliases:** `@/*` maps to `src/*`
 - **JSX:** Preserve (handled by Next.js)
 
 ### Next.js Configuration (`next.config.ts`)
+
 - Currently using defaults
 - Ready to add environment variables, rewrites, redirects
 
 ### ESLint Configuration (`eslint.config.mjs`)
+
 - Next.js recommended rules
 - Can be extended with custom rules
 
 ### Tailwind Configuration (`postcss.config.mjs`)
+
 - Tailwind CSS 4 with PostCSS
 - Works alongside MUI styling
 
 ## 🚀 Deployment Considerations
 
 ### Recommended Platforms
+
 1. **Vercel** (easiest for Next.js)
+
    - Zero configuration
    - Automatic deployments from Git
    - Preview deployments for PRs
 
 2. **AWS (ECS/Fargate)**
+
    - Dockerized deployment
    - More control over infrastructure
    - Integration with existing AWS services
@@ -472,6 +518,7 @@ npm run audit        # Security audit
    - AD integration available
 
 ### Environment Variables Needed
+
 ```env
 NEXT_PUBLIC_API_BASE_URL=
 NEXT_PUBLIC_API_TIMEOUT=
@@ -491,12 +538,14 @@ AUTH_SECRET=
 ## 🔐 Security Considerations
 
 ### Implemented
+
 - ✅ TypeScript for type safety
 - ✅ Input validation with Zod
 - ✅ No sensitive data in client-side code
 - ✅ Environment variables for configuration
 
 ### TODO
+
 - ⚠️ CSRF protection
 - ⚠️ XSS prevention (sanitize user input)
 - ⚠️ Rate limiting
@@ -506,27 +555,33 @@ AUTH_SECRET=
 ## 🎓 Learning Resources for Team
 
 ### Next.js 15 (App Router)
+
 - https://nextjs.org/docs
 - Focus on: Server Components, Route Handlers, Metadata API
 
 ### React Query (TanStack Query)
+
 - https://tanstack.com/query/latest
 - Focus on: Query keys, Caching, Optimistic updates
 
 ### Material-UI v7
+
 - https://mui.com/material-ui/
 - Focus on: Component API, Theming, sx prop
 
 ### @dnd-kit
+
 - https://docs.dndkit.com/
 - Focus on: Sensors, Modifiers, Collision detection
 
 ### TypeScript Patterns
+
 - Focus on: Interface design, Type guards, Generics
 
 ## 🤝 Contributing Guidelines (For Team)
 
 ### Code Style
+
 1. **Use TypeScript interfaces** for all API contracts
 2. **Custom hooks** for all data fetching
 3. **Feature folders** for related code
@@ -537,6 +592,7 @@ AUTH_SECRET=
    - Files: Match component name or feature name
 
 ### Git Workflow
+
 ```bash
 # Feature branches
 git checkout -b feature/add-reporting-page
@@ -553,6 +609,7 @@ chore: maintenance tasks
 ```
 
 ### Pull Request Checklist
+
 - [ ] Code follows project structure
 - [ ] TypeScript types are correct
 - [ ] No console.log in production code

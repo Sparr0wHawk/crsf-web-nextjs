@@ -1,13 +1,15 @@
 # 旧システム分析サマリー - CRS/CRF Web System
 
-## 🎯 PoC対象ページの特定
+## 🎯 PoC 対象ページの特定
 
-### **ページID: PT04000**
-**ページ名**: Web稼働表
+### **ページ ID: PT04000**
+
+**ページ名**: Web 稼働表
 
 ### **ファイルの場所**
 
 #### フロントエンド:
+
 ```
 HTML:
 └── refer/crsf-web-dev_CHAR-VALID/crsf-web-presentation/
@@ -22,6 +24,7 @@ JavaScript:
 ```
 
 #### バックエンド:
+
 ```
 Controller/Resource:
 └── refer/crsf-web-dev_CHAR-VALID/crsf-web-presentation/
@@ -41,9 +44,11 @@ Business Logic:
 ## 🔗 メニューからのナビゲーション
 
 ### **メニューページ: OT02000**
+
 **ファイル**: `refer/crsf-web-dev_CHAR-VALID/.../views/OT02/OT02000.html`
 
-**該当箇所** (294行目):
+**該当箇所** (294 行目):
+
 ```html
 <div class="menu-item" data-th-if="${isCRFHeadOfficeOrShopOrNrs}">
   <button class="btn dropdown-toggle menu" id="webOperationTableLink">
@@ -52,7 +57,7 @@ Business Logic:
 </div>
 ```
 
-**アクセス条件**: CRF本社/営業所/NRS権限が必要
+**アクセス条件**: CRF 本社/営業所/NRS 権限が必要
 
 ---
 
@@ -60,22 +65,23 @@ Business Logic:
 
 ### **1. 検索条件フォーム**
 
-| 項目 | 型 | 必須 | 説明 |
-|-----|---|-----|-----|
-| 日付 | テキスト×3 | ✅ | 年/月/日 + 曜日自動表示 |
-| 部 | プルダウン | - | 部門選択 |
-| ブロック | プルダウン | - | 部に紐づくブロック（連動） |
-| 営業所 | テキスト+選択 | - | コード/名称 |
-| クラス | テキスト×5 | - | 車両クラスコード |
-| グループクラス | チェックボックス | - | グループ指定 |
-| 車種コード | テキスト | - | 車種コード |
-| 配備/運用区分 | プルダウン | - | すべて/配備/運用 |
-| 車両区分 | プルダウン | - | 配備/運用区分に連動 |
-| 並び順 | プルダウン | - | クラス/配備営業所/運用営業所/車名 |
-| 仮引当実施 | ラジオボタン | - | する/しない |
-| 検索範囲 | ラジオボタン | - | 72時間/2週間 |
+| 項目           | 型               | 必須 | 説明                              |
+| -------------- | ---------------- | ---- | --------------------------------- |
+| 日付           | テキスト ×3      | ✅   | 年/月/日 + 曜日自動表示           |
+| 部             | プルダウン       | -    | 部門選択                          |
+| ブロック       | プルダウン       | -    | 部に紐づくブロック（連動）        |
+| 営業所         | テキスト+選択    | -    | コード/名称                       |
+| クラス         | テキスト ×5      | -    | 車両クラスコード                  |
+| グループクラス | チェックボックス | -    | グループ指定                      |
+| 車種コード     | テキスト         | -    | 車種コード                        |
+| 配備/運用区分  | プルダウン       | -    | すべて/配備/運用                  |
+| 車両区分       | プルダウン       | -    | 配備/運用区分に連動               |
+| 並び順         | プルダウン       | -    | クラス/配備営業所/運用営業所/車名 |
+| 仮引当実施     | ラジオボタン     | -    | する/しない                       |
+| 検索範囲       | ラジオボタン     | -    | 72 時間/2 週間                    |
 
 **重要な連動処理**:
+
 - 「部」選択 → 「ブロック」リストが更新
 - 「配備/運用区分」選択 → 「車両区分」リストが更新
 
@@ -84,6 +90,7 @@ Business Logic:
 ### **2. 稼働グラフ（タイムチャート）**
 
 #### **構造**:
+
 ```
 ┌────────┬────────┬───┬──────────────────────────────┐
 │登録番号│ 車種   │条件│  時間軸（横スクロール）      │
@@ -95,6 +102,7 @@ Business Logic:
 ```
 
 #### **データ構造**:
+
 ```javascript
 // ヘッダー
 operationTableGraphHeader: {
@@ -114,7 +122,7 @@ operationTableGraphDataList: [{
   classCode: "WCL",
   dispositionShopName: "麻生駅前",
   usingShopName: "札幌駅北口",
-  
+
   // ステータスバー構成要素
   pieceInformationList: [{
     pieceLength: 12,          // 占めるセル数（時間幅）
@@ -131,6 +139,7 @@ operationTableGraphDataList: [{
 ```
 
 #### **色分け**:
+
 - 各ステータス（貸渡中、アイドル、整備中、チャーター等）は色で識別
 - `pieceColor`で動的に背景色を設定
 - 印刷時も色を保持
@@ -139,40 +148,45 @@ operationTableGraphDataList: [{
 
 ### **3. インタラクション**
 
-| 機能 | 実装 |
-|-----|-----|
-| **ツールチップ** | マウスオーバーでステータス詳細を表示 |
-| **詳細モーダル** | バークリックで詳細情報をモーダル表示 |
+| 機能               | 実装                                 |
+| ------------------ | ------------------------------------ |
+| **ツールチップ**   | マウスオーバーでステータス詳細を表示 |
+| **詳細モーダル**   | バークリックで詳細情報をモーダル表示 |
 | **複数ステータス** | 重複がある場合は連続してモーダル表示 |
-| **横スクロール** | 長時間表示時のスクロール対応 |
-| **印刷** | ボタンで印刷プレビュー（色保持） |
-| **営業所選択** | リンククリックで選択ダイアログ表示 |
+| **横スクロール**   | 長時間表示時のスクロール対応         |
+| **印刷**           | ボタンで印刷プレビュー（色保持）     |
+| **営業所選択**     | リンククリックで選択ダイアログ表示   |
 
 ---
 
-## 🚀 React移行のポイント
+## 🚀 React 移行のポイント
 
 ### **サーバーサイドレンダリング → クライアントサイド**
 
 **旧システム (Thymeleaf)**:
+
 ```html
-<td data-th-each="piece: *{pieceInformationListDisplay}" 
-    class="item piece" 
-    data-th-style="'background-color: ' + ${piece.pieceColor}"
-    data-th-colspan="${piece.pieceLength}">
-</td>
+<td
+  data-th-each="piece: *{pieceInformationListDisplay}"
+  class="item piece"
+  data-th-style="'background-color: ' + ${piece.pieceColor}"
+  data-th-colspan="${piece.pieceLength}"
+></td>
 ```
 
 **新システム (React)**:
+
 ```typescript
-{operation.pieceInformationList.map((piece, idx) => (
-  <td 
-    key={idx}
-    colSpan={piece.pieceLength}
-    style={{ backgroundColor: piece.pieceColor }}
-    onClick={() => handlePieceClick(piece)}
-  />
-))}
+{
+  operation.pieceInformationList.map((piece, idx) => (
+    <td
+      key={idx}
+      colSpan={piece.pieceLength}
+      style={{ backgroundColor: piece.pieceColor }}
+      onClick={() => handlePieceClick(piece)}
+    />
+  ));
+}
 ```
 
 ---
@@ -180,6 +194,7 @@ operationTableGraphDataList: [{
 ### **Backbone → React Hooks**
 
 **旧システム**:
+
 ```javascript
 // Model
 var WebOperationTableModel = Backbone.Model.extend({
@@ -196,51 +211,53 @@ var WebOperationTableView = Backbone.View.extend({
 ```
 
 **新システム**:
+
 ```typescript
 // Custom Hook
 function useOperationTableData() {
   const { data, isLoading } = useQuery({
-    queryKey: ['operationTable', searchParams],
-    queryFn: () => fetchOperationTableData(searchParams)
+    queryKey: ["operationTable", searchParams],
+    queryFn: () => fetchOperationTableData(searchParams),
   });
   return { data, isLoading };
 }
 
 // Component
 function SearchForm() {
-  const [section, setSection] = useState('');
+  const [section, setSection] = useState("");
   const { data: blocks } = useBlockList(section);
-  
+
   useEffect(() => {
     // 部が変更されたらブロックをリセット
-    setBlock('');
+    setBlock("");
   }, [section]);
 }
 ```
 
 ---
 
-### **ドラッグ&ドロップ（PoC新機能）**
+### **ドラッグ&ドロップ（PoC 新機能）**
 
 **実装イメージ**:
+
 ```typescript
-import { DndContext, useDraggable, useDroppable } from '@dnd-kit/core';
+import { DndContext, useDraggable, useDroppable } from "@dnd-kit/core";
 
 function DraggableStatusBar({ piece }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: piece.id,
-    data: piece
+    data: piece,
   });
-  
+
   return (
     <td
       ref={setNodeRef}
       {...listeners}
       {...attributes}
       colSpan={piece.pieceLength}
-      style={{ 
+      style={{
         backgroundColor: piece.pieceColor,
-        cursor: 'grab'
+        cursor: "grab",
       }}
     />
   );
@@ -249,17 +266,17 @@ function DraggableStatusBar({ piece }) {
 function OperationTableGraph() {
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    
+
     if (over) {
       // ドロップ先に応じてスケジュール更新
       updateSchedule({
         pieceId: active.id,
         newTime: over.data.time,
-        newVehicle: over.data.vehicleId
+        newVehicle: over.data.vehicleId,
       });
     }
   };
-  
+
   return (
     <DndContext onDragEnd={handleDragEnd}>
       <table>{/* グラフ内容 */}</table>
@@ -270,7 +287,7 @@ function OperationTableGraph() {
 
 ---
 
-## 📦 必要なAPIエンドポイント
+## 📦 必要な API エンドポイント
 
 ### **既存のバックエンドを活用する場合**:
 
@@ -293,23 +310,24 @@ PUT  /api/operation-table/update-schedule (PoC新機能)
 
 ---
 
-## 🎨 UIライブラリの使い方
+## 🎨 UI ライブラリの使い方
 
 ### **検索フォーム → MUI Components**:
+
 ```typescript
-import { 
-  TextField, 
-  Select, 
-  MenuItem, 
+import {
+  TextField,
+  Select,
+  MenuItem,
   FormControl,
   InputLabel,
   Checkbox,
   Radio,
-  RadioGroup 
+  RadioGroup
 } from '@mui/material';
 
 // 日付入力
-<TextField 
+<TextField
   label="年"
   value={year}
   onChange={(e) => setYear(e.target.value)}
@@ -328,46 +346,43 @@ import {
 ```
 
 ### **稼働グラフ → Tailwind CSS + MUI**:
+
 ```typescript
 <div className="overflow-x-auto max-w-full">
   <table className="min-w-full border-collapse">
     <thead>
       <tr>
-        {header.datewriteList.map(date => (
+        {header.datewriteList.map((date) => (
           <th key={date} className="border px-2 py-1 text-xs">
             {date}
           </th>
         ))}
       </tr>
     </thead>
-    <tbody>
-      {/* 車両行 */}
-    </tbody>
+    <tbody>{/* 車両行 */}</tbody>
   </table>
 </div>
 ```
 
 ### **ツールチップ → MUI Tooltip**:
+
 ```typescript
-import { Tooltip } from '@mui/material';
+import { Tooltip } from "@mui/material";
 
 <Tooltip title={piece.tooltipMessage} arrow>
-  <td style={{ backgroundColor: piece.pieceColor }}>
-    {/* 内容 */}
-  </td>
-</Tooltip>
+  <td style={{ backgroundColor: piece.pieceColor }}>{/* 内容 */}</td>
+</Tooltip>;
 ```
 
 ### **モーダル → MUI Dialog**:
+
 ```typescript
-import { Dialog, DialogTitle, DialogContent } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent } from "@mui/material";
 
 <Dialog open={open} onClose={handleClose}>
   <DialogTitle>ステータス内容詳細</DialogTitle>
-  <DialogContent>
-    {/* 詳細情報 */}
-  </DialogContent>
-</Dialog>
+  <DialogContent>{/* 詳細情報 */}</DialogContent>
+</Dialog>;
 ```
 
 ---
@@ -375,15 +390,17 @@ import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 ## ✅ チェックリスト
 
 ### **理解度確認**:
-- [x] PT04000が稼働表のページIDであることを確認
+
+- [x] PT04000 が稼働表のページ ID であることを確認
 - [x] ファイルの場所を特定
 - [x] メニュー(OT02000)からのナビゲーションを確認
 - [x] データ構造（ヘッダー・データ行・ピース情報）を理解
-- [x] 連動処理（部→ブロック、配備/運用→車両区分）を理解
-- [x] ドラッグ&ドロップがPoC追加要件であることを確認
+- [x] 連動処理（部 → ブロック、配備/運用 → 車両区分）を理解
+- [x] ドラッグ&ドロップが PoC 追加要件であることを確認
 
 ### **次のアクション**:
-- [ ] MUIテーマの設定
+
+- [ ] MUI テーマの設定
 - [ ] フォルダ構造の作成
 - [ ] メニューページの実装
 - [ ] 検索フォームの実装
@@ -395,16 +412,13 @@ import { Dialog, DialogTitle, DialogContent } from '@mui/material';
 ## 📞 質問・確認事項
 
 1. **バックエンド連携**:
-   - 既存のJava APIを使う？ それともモックデータ？
-   
+   - 既存の Java API を使う？ それともモックデータ？
 2. **認証**:
-   - PoCで認証機能は必要？
-   
+   - PoC で認証機能は必要？
 3. **優先順位**:
    - 機能の完全性 vs. ドラッグ&ドロップの洗練度
-   
 4. **タイムライン**:
-   - PoC完成の目標時期は？
+   - PoC 完成の目標時期は？
 
 ---
 

@@ -225,6 +225,51 @@ export class MockOperationTableAPI implements IOperationTableAPI {
   }
 
   /**
+   * Confirm and persist all schedule changes
+   * In mock: Save to localStorage for persistence across page refreshes
+   * In real API: This would send changes to backend database
+   */
+  async confirmScheduleChanges(changes: ScheduleUpdate[]): Promise<void> {
+    await this.simulateDelay();
+    
+    console.log('💾 Confirming schedule changes (mock):', changes.length, 'changes');
+    
+    // In mock implementation: Save current state to localStorage
+    try {
+      const saveData = {
+        timestamp: new Date().toISOString(),
+        operations: mockOperations.map(op => ({
+          ...op,
+          pieceInformationList: op.pieceInformationList.map(piece => ({
+            ...piece,
+            startTime: piece.startTime.toISOString(),
+            endTime: piece.endTime.toISOString(),
+          })),
+        })),
+        changeCount: changes.length,
+      };
+      
+      localStorage.setItem('operationTable_savedState', JSON.stringify(saveData));
+      console.log('✅ Changes saved to localStorage successfully');
+      
+      // In real API implementation:
+      // await axios.post('/api/operation-table/confirm', {
+      //   changes: changes.map(change => ({
+      //     pieceId: change.pieceId,
+      //     operationId: change.operationId,
+      //     newOperationId: change.newOperationId,
+      //     newStartTime: change.newStartTime.toISOString(),
+      //     newEndTime: change.newEndTime.toISOString(),
+      //   }))
+      // });
+      
+    } catch (error) {
+      console.error('❌ Failed to save changes:', error);
+      throw new Error('Failed to confirm schedule changes');
+    }
+  }
+
+  /**
    * Generate table header based on search params
    */
   private generateHeader(

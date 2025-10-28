@@ -73,15 +73,24 @@ const STATUS_COLORS: Record<StatusType, string> = {
 // Helper Functions
 // ============================================================================
 
+/**
+ * Generate a unique ID using timestamp + random string
+ * This ensures globally unique IDs across all operations and pieces
+ */
+function generateUniqueId(): string {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 9);
+  return `piece-${timestamp}-${random}`;
+}
+
 function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pattern3'): StatusPiece[] {
   const pieces: StatusPiece[] = [];
   let currentTime = new Date(baseDate);
-  let pieceId = 1;
 
   if (scenario === 'pattern1') {
     // Pattern 1: maintenance -> reserved-temporary -> maintenance
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 6, // 6 hours
       pieceColor: STATUS_COLORS.maintenance,
       tooltipMessage: '整備・修理\n作業: 定期点検',
@@ -92,7 +101,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
     });
     
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 8, // 8 hours
       pieceColor: STATUS_COLORS['reserved-temporary'],
       tooltipMessage: '予約（仮引当）\n予約番号: T001\n顧客: 山田太郎',
@@ -103,7 +112,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
     });
     
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 4, // 4 hours
       pieceColor: STATUS_COLORS.maintenance,
       tooltipMessage: '整備・修理\n作業: 清掃',
@@ -116,7 +125,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
   } else if (scenario === 'pattern2') {
     // Pattern 2: reserved-temporary -> reserved-fixed -> reserved-temporary
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 5, // 5 hours
       pieceColor: STATUS_COLORS['reserved-temporary'],
       tooltipMessage: '予約（仮引当）\n予約番号: T002\n顧客: 佐藤花子',
@@ -127,7 +136,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
     });
     
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 10, // 10 hours
       pieceColor: STATUS_COLORS['reserved-fixed'],
       tooltipMessage: '予約（確定）\n予約番号: F001\n顧客: 鈴木一郎',
@@ -138,7 +147,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
     });
     
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 4, // 4 hours
       pieceColor: STATUS_COLORS['reserved-temporary'],
       tooltipMessage: '予約（仮引当）\n予約番号: T003\n顧客: 田中次郎',
@@ -151,7 +160,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
   } else {
     // Pattern 3: reserved-fixed -> maintenance -> reserved-fixed
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 8, // 8 hours
       pieceColor: STATUS_COLORS['reserved-fixed'],
       tooltipMessage: '予約（確定）\n予約番号: F002\n顧客: 高橋三郎',
@@ -162,7 +171,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
     });
     
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 3, // 3 hours
       pieceColor: STATUS_COLORS.maintenance,
       tooltipMessage: '整備・修理\n作業: オイル交換',
@@ -173,7 +182,7 @@ function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pat
     });
     
     pieces.push({
-      id: `piece-${pieceId++}`,
+      id: generateUniqueId(),
       pieceLength: 7, // 7 hours
       pieceColor: STATUS_COLORS['reserved-fixed'],
       tooltipMessage: '予約（確定）\n予約番号: F003\n顧客: 伊藤四郎',

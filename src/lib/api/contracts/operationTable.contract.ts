@@ -39,6 +39,13 @@ export interface IOperationTableAPI {
    * Get detailed status information
    */
   getStatusDetail(pieceId: string): Promise<StatusDetail>;
+  
+  /**
+   * Confirm and persist all schedule changes
+   * @param changes - Array of all changes to be saved
+   * @returns Promise that resolves when changes are saved
+   */
+  confirmScheduleChanges(changes: ScheduleUpdate[]): Promise<void>;
 }
 
 // ============================================================================

@@ -131,4 +131,30 @@ export class RealOperationTableAPI implements IOperationTableAPI {
       );
     }
   }
+
+  /**
+   * Confirm and persist all schedule changes
+   * 
+   * Backend endpoint: POST /api/v1/operation-table/confirm
+   * Request body: { changes: ScheduleUpdate[] }
+   */
+  async confirmScheduleChanges(changes: ScheduleUpdate[]): Promise<void> {
+    try {
+      await httpClient.post(`${this.basePath}/confirm`, {
+        changes: changes.map(change => ({
+          pieceId: change.pieceId,
+          operationId: change.operationId,
+          newOperationId: change.newOperationId,
+          newStartTime: change.newStartTime.toISOString(),
+          newEndTime: change.newEndTime.toISOString(),
+        }))
+      });
+    } catch (error: any) {
+      throw new APIError(
+        'Failed to confirm schedule changes',
+        error.response?.status || 500,
+        error.response?.data
+      );
+    }
+  }
 }

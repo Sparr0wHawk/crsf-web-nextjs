@@ -53,14 +53,16 @@ export function useOperationTableHistory() {
   const canUndo = currentIndex >= 0;
 
   /**
-   * Can we reset? (are there any changes at all)
+   * Can we reset? (are there any active changes)
+   * Only active changes (not undone) can be reset
    */
-  const canReset = history.length > 0;
+  const canReset = currentIndex >= 0;
 
   /**
    * Do we have any unsaved changes?
+   * Only counts "active" changes (not undone)
    */
-  const hasChanges = history.length > 0;
+  const hasChanges = currentIndex >= 0;
 
   /**
    * Add a new change to history
@@ -80,12 +82,16 @@ export function useOperationTableHistory() {
       timestamp: new Date(),
     };
 
+    console.log('📝 Adding change to history:', entry);
+
     setHistory(prev => {
       // Remove any "undone" entries after current index
       const newHistory = prev.slice(0, currentIndex + 1);
       
       // Add new entry
       newHistory.push(entry);
+      
+      console.log('📝 History stack:', newHistory);
       
       // Limit history size (keep only last MAX_HISTORY_SIZE entries)
       if (newHistory.length > MAX_HISTORY_SIZE) {
@@ -97,6 +103,7 @@ export function useOperationTableHistory() {
 
     setCurrentIndex(prev => {
       const newIndex = Math.min(prev + 1, MAX_HISTORY_SIZE - 1);
+      console.log('📝 Current index updated to:', newIndex, '(active changes:', newIndex + 1, ')');
       return newIndex;
     });
   }, [currentIndex]);
@@ -105,38 +112,65 @@ export function useOperationTableHistory() {
    * Undo the last change (元に戻す)
    */
   const undo = useCallback((): HistoryEntry | null => {
-    if (!canUndo) return null;
+    console.log('⏪ Undo called, canUndo:', canUndo, 'currentIndex:', currentIndex, '(active changes:', currentIndex + 1, ')');
+    
+    if (!canUndo) {
+      console.log('⏪ Cannot undo - no changes');
+      return null;
+    }
 
     const entryToUndo = history[currentIndex];
-    setCurrentIndex(prev => prev - 1);
+    console.log('⏪ Undoing entry:', entryToUndo);
+    
+    setCurrentIndex(prev => {
+      const newIndex = prev - 1;
+      console.log('⏪ Current index updated to:', newIndex, '(active changes:', newIndex + 1, ')');
+      return newIndex;
+    });
     
     return entryToUndo;
   }, [canUndo, currentIndex, history]);
 
   /**
    * Reset all changes (やり直し - cancel all)
+   * Only resets active changes (not undone entries)
    */
   const resetAll = useCallback((): HistoryEntry[] => {
-    const entriesToReset = [...history];
+    console.log('🔄 Reset all called, currentIndex:', currentIndex, 'history length:', history.length);
+    
+    // Only return active entries (0 to currentIndex)
+    const entriesToReset = currentIndex >= 0 ? history.slice(0, currentIndex + 1) : [];
+    
+    console.log('🔄 Entries to reset:', entriesToReset.length);
     
     setHistory([]);
     setCurrentIndex(-1);
     
+    console.log('🔄 History cleared');
+    
     return entriesToReset;
-  }, [history]);
+  }, [currentIndex, history]);
 
   /**
    * Confirm changes (確定 - save to database)
    * Clears history as changes are now persisted
+   * Only confirms active changes (not undone entries)
    */
   const confirmChanges = useCallback(() => {
-    const confirmedChanges = [...history];
+    console.log('✅ Confirm changes called, currentIndex:', currentIndex, 'history length:', history.length);
+    
+    // Only return active entries (0 to currentIndex)
+    const confirmedChanges = currentIndex >= 0 ? history.slice(0, currentIndex + 1) : [];
+    
+    console.log('✅ Confirming', confirmedChanges.length, 'active changes');
     
     setHistory([]);
     setCurrentIndex(-1);
     
+    console.log('✅ History cleared after confirm');
+    
     return confirmedChanges;
-  }, [history]);
+  }, [currentIndex, history]);
 
   /**
    * Get current history for debugging
@@ -145,8 +179,9 @@ export function useOperationTableHistory() {
 
   /**
    * Get number of changes in history
+   * Only counts "active" changes (not undone)
    */
-  const getChangeCount = useCallback(() => history.length, [history.length]);
+  const getChangeCount = useCallback(() => currentIndex + 1, [currentIndex]);
 
   return {
     // State

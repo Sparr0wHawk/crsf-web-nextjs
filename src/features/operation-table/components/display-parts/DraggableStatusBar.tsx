@@ -18,8 +18,9 @@ export function DraggableStatusBar({ piece, operation, onDetailClick }: Draggabl
   const isResizable = canPieceBeResized(piece);
   const lockedCursor = getLockedCursor(piece);
   
-  // Use unique ID combining operation and piece to prevent multiple cars from dragging together
-  const uniqueDragId = `drag-${operation.id}-${piece.id}`;
+  // Use piece.id directly as drag ID since it's now globally unique (UUID-based)
+  // No need to combine with operation.id anymore
+  const uniqueDragId = `drag-${piece.id}`;
   
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: uniqueDragId,

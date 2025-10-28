@@ -153,13 +153,14 @@ export interface StatusPiece {
 }
 
 export type StatusType = 
-  | 'rental'        // 貸渡中
-  | 'idle'          // アイドル
-  | 'maintenance'   // 整備中
-  | 'charter'       // チャーター
-  | 'reserved'      // 予約済み
-  | 'transfer'      // 移動中
-  | 'other';        // その他
+  | 'maintenance'            // 整備・修理
+  | 'reserved-temporary'     // 予約（仮引当）
+  | 'reserved-fixed'         // 予約（確定）
+  | 'rental'                 // 貸渡中 (keeping for compatibility)
+  | 'idle'                   // アイドル (keeping for compatibility)
+  | 'charter'                // チャーター (keeping for compatibility)
+  | 'transfer'               // 移動中 (keeping for compatibility)
+  | 'other';                 // その他 (keeping for compatibility)
 
 export interface StatusDetails {
   reservationNumber?: string;

@@ -87,9 +87,19 @@ export class MockOperationTableAPI implements IOperationTableAPI {
     // Generate header based on search scope
     const header = this.generateHeader(params.searchDate, params.searchScope);
 
+    // IMPORTANT: Return deep copies to avoid reference issues with React Query cache
+    const operationsCopy = filteredOps.map(op => ({
+      ...op,
+      pieceInformationList: op.pieceInformationList.map(piece => ({
+        ...piece,
+        startTime: new Date(piece.startTime),
+        endTime: new Date(piece.endTime),
+      })),
+    }));
+
     return {
       header,
-      operations: filteredOps,
+      operations: operationsCopy,
     };
   }
 
@@ -120,27 +130,34 @@ export class MockOperationTableAPI implements IOperationTableAPI {
    */
   async updateSchedule(update: ScheduleUpdate): Promise<void> {
     console.log('📡 Mock API: updateSchedule()', update);
+    console.log('📡 Before update - operations count:', mockOperations.length);
     await this.simulateDelay();
 
     // Find and update the piece in mock data
     const sourceOperation = mockOperations.find(op => op.id === update.operationId);
     if (!sourceOperation) {
+      console.error('❌ Source operation not found:', update.operationId);
       throw new Error(`Operation ${update.operationId} not found`);
     }
 
     const pieceIndex = sourceOperation.pieceInformationList.findIndex(p => p.id === update.pieceId);
     if (pieceIndex === -1) {
+      console.error('❌ Piece not found:', update.pieceId);
       throw new Error(`Piece ${update.pieceId} not found`);
     }
 
     const piece = sourceOperation.pieceInformationList[pieceIndex];
+    console.log('📡 Found piece:', piece.id, 'at index', pieceIndex);
     
     // If moving to a different vehicle, remove from source and add to target
     if (update.newOperationId && update.newOperationId !== update.operationId) {
       const targetOperation = mockOperations.find(op => op.id === update.newOperationId);
       if (!targetOperation) {
+        console.error('❌ Target operation not found:', update.newOperationId);
         throw new Error(`Target operation ${update.newOperationId} not found`);
       }
+
+      console.log('📡 Moving piece from', sourceOperation.carName, 'to', targetOperation.carName);
 
       // Remove from source
       sourceOperation.pieceInformationList.splice(pieceIndex, 1);
@@ -148,8 +165,8 @@ export class MockOperationTableAPI implements IOperationTableAPI {
       // Update piece times and add to target
       const updatedPiece = {
         ...piece,
-        startTime: update.newStartTime,
-        endTime: update.newEndTime,
+        startTime: new Date(update.newStartTime),
+        endTime: new Date(update.newEndTime),
       };
       
       // Insert in chronological order
@@ -161,15 +178,21 @@ export class MockOperationTableAPI implements IOperationTableAPI {
       } else {
         targetOperation.pieceInformationList.splice(insertIndex, 0, updatedPiece);
       }
+      console.log('✅ Piece moved successfully');
     } else {
       // Just update times in same vehicle
-      piece.startTime = update.newStartTime;
-      piece.endTime = update.newEndTime;
+      console.log('📡 Updating times in same vehicle:', sourceOperation.carName);
+      console.log('📡 Old times:', piece.startTime, '-', piece.endTime);
+      console.log('📡 New times:', update.newStartTime, '-', update.newEndTime);
+      
+      piece.startTime = new Date(update.newStartTime);
+      piece.endTime = new Date(update.newEndTime);
       
       // Re-sort pieces by start time
       sourceOperation.pieceInformationList.sort((a, b) => 
         a.startTime.getTime() - b.startTime.getTime()
       );
+      console.log('✅ Times updated successfully');
     }
 
     console.log('✅ Schedule updated successfully (mock)');

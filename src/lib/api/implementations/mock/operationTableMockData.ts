@@ -55,129 +55,132 @@ export const mockSortOptions: SortOption[] = [
 ];
 
 // ============================================================================
-// Status Colors
+// Status Colors (Updated to match new requirements)
 // ============================================================================
 
 const STATUS_COLORS: Record<StatusType, string> = {
-  rental: '#FF5733',      // Red - 貸渡中
-  idle: '#4CAF50',        // Green - アイドル
-  maintenance: '#FFC107', // Amber - 整備中
-  charter: '#2196F3',     // Blue - チャーター
-  reserved: '#9C27B0',    // Purple - 予約済み
-  transfer: '#FF9800',    // Orange - 移動中
-  other: '#9E9E9E',       // Grey - その他
+  maintenance: '#000000',        // Black - 整備・修理
+  'reserved-temporary': '#64B5F6', // Light Blue - 予約（仮引当）
+  'reserved-fixed': '#1565C0',   // Deep Blue - 予約（確定）
+  rental: '#9C27B0',             // Purple - 貸渡中 (legacy)
+  idle: '#9E9E9E',               // Grey - アイドル (legacy)
+  charter: '#2196F3',            // Blue - チャーター (legacy)
+  transfer: '#FF9800',           // Orange - 移動中 (legacy)
+  other: '#9E9E9E',              // Grey - その他 (legacy)
 };
 
 // ============================================================================
 // Helper Functions
 // ============================================================================
 
-function generatePieces(baseDate: Date, scenario: 'busy' | 'normal' | 'idle'): StatusPiece[] {
+function generatePieces(baseDate: Date, scenario: 'pattern1' | 'pattern2' | 'pattern3'): StatusPiece[] {
   const pieces: StatusPiece[] = [];
   let currentTime = new Date(baseDate);
   let pieceId = 1;
 
-  if (scenario === 'busy') {
-    // Busy schedule: rental -> idle -> rental -> idle
+  if (scenario === 'pattern1') {
+    // Pattern 1: maintenance -> reserved-temporary -> maintenance
     pieces.push({
       id: `piece-${pieceId++}`,
-      pieceLength: 8, // 8 hours (1 mesh/hour)
-      pieceColor: STATUS_COLORS.rental,
-      tooltipMessage: '貸渡中\n予約番号: R001\n顧客: 山田太郎',
-      statusType: 'rental',
+      pieceLength: 6, // 6 hours
+      pieceColor: STATUS_COLORS.maintenance,
+      tooltipMessage: '整備・修理\n作業: 定期点検',
+      statusType: 'maintenance',
+      startTime: new Date(currentTime),
+      endTime: new Date(currentTime.setHours(currentTime.getHours() + 6)),
+      details: { workType: '定期点検' },
+    });
+    
+    pieces.push({
+      id: `piece-${pieceId++}`,
+      pieceLength: 8, // 8 hours
+      pieceColor: STATUS_COLORS['reserved-temporary'],
+      tooltipMessage: '予約（仮引当）\n予約番号: T001\n顧客: 山田太郎',
+      statusType: 'reserved-temporary',
       startTime: new Date(currentTime),
       endTime: new Date(currentTime.setHours(currentTime.getHours() + 8)),
-      details: { reservationNumber: 'R001', customerName: '山田太郎' },
-    });
-    
-    pieces.push({
-      id: `piece-${pieceId++}`,
-      pieceLength: 4, // 4 hours
-      pieceColor: STATUS_COLORS.idle,
-      tooltipMessage: 'アイドル',
-      statusType: 'idle',
-      startTime: new Date(currentTime),
-      endTime: new Date(currentTime.setHours(currentTime.getHours() + 4)),
-      details: {},
-    });
-    
-    pieces.push({
-      id: `piece-${pieceId++}`,
-      pieceLength: 10, // 10 hours
-      pieceColor: STATUS_COLORS.rental,
-      tooltipMessage: '貸渡中\n予約番号: R002\n顧客: 佐藤花子',
-      statusType: 'rental',
-      startTime: new Date(currentTime),
-      endTime: new Date(currentTime.setHours(currentTime.getHours() + 10)),
-      details: { reservationNumber: 'R002', customerName: '佐藤花子' },
-    });
-  } else if (scenario === 'normal') {
-    // Normal schedule: idle -> rental -> idle
-    pieces.push({
-      id: `piece-${pieceId++}`,
-      pieceLength: 6, // 6 hours
-      pieceColor: STATUS_COLORS.idle,
-      tooltipMessage: 'アイドル',
-      statusType: 'idle',
-      startTime: new Date(currentTime),
-      endTime: new Date(currentTime.setHours(currentTime.getHours() + 6)),
-      details: {},
-    });
-    
-    pieces.push({
-      id: `piece-${pieceId++}`,
-      pieceLength: 12, // 12 hours
-      pieceColor: STATUS_COLORS.rental,
-      tooltipMessage: '貸渡中\n予約番号: R003\n顧客: 鈴木一郎',
-      statusType: 'rental',
-      startTime: new Date(currentTime),
-      endTime: new Date(currentTime.setHours(currentTime.getHours() + 12)),
-      details: { reservationNumber: 'R003', customerName: '鈴木一郎' },
-    });
-    
-    pieces.push({
-      id: `piece-${pieceId++}`,
-      pieceLength: 6, // 6 hours
-      pieceColor: STATUS_COLORS.idle,
-      tooltipMessage: 'アイドル',
-      statusType: 'idle',
-      startTime: new Date(currentTime),
-      endTime: new Date(currentTime.setHours(currentTime.getHours() + 6)),
-      details: {},
-    });
-  } else {
-    // Idle: mostly available with maintenance
-    pieces.push({
-      id: `piece-${pieceId++}`,
-      pieceLength: 16, // 16 hours
-      pieceColor: STATUS_COLORS.idle,
-      tooltipMessage: 'アイドル',
-      statusType: 'idle',
-      startTime: new Date(currentTime),
-      endTime: new Date(currentTime.setHours(currentTime.getHours() + 16)),
-      details: {},
+      details: { reservationNumber: 'T001', customerName: '山田太郎' },
     });
     
     pieces.push({
       id: `piece-${pieceId++}`,
       pieceLength: 4, // 4 hours
       pieceColor: STATUS_COLORS.maintenance,
-      tooltipMessage: '整備中\n作業: 定期点検',
+      tooltipMessage: '整備・修理\n作業: 清掃',
       statusType: 'maintenance',
       startTime: new Date(currentTime),
       endTime: new Date(currentTime.setHours(currentTime.getHours() + 4)),
-      details: { workType: '定期点検' },
+      details: { workType: '清掃' },
+    });
+    
+  } else if (scenario === 'pattern2') {
+    // Pattern 2: reserved-temporary -> reserved-fixed -> reserved-temporary
+    pieces.push({
+      id: `piece-${pieceId++}`,
+      pieceLength: 5, // 5 hours
+      pieceColor: STATUS_COLORS['reserved-temporary'],
+      tooltipMessage: '予約（仮引当）\n予約番号: T002\n顧客: 佐藤花子',
+      statusType: 'reserved-temporary',
+      startTime: new Date(currentTime),
+      endTime: new Date(currentTime.setHours(currentTime.getHours() + 5)),
+      details: { reservationNumber: 'T002', customerName: '佐藤花子' },
+    });
+    
+    pieces.push({
+      id: `piece-${pieceId++}`,
+      pieceLength: 10, // 10 hours
+      pieceColor: STATUS_COLORS['reserved-fixed'],
+      tooltipMessage: '予約（確定）\n予約番号: F001\n顧客: 鈴木一郎',
+      statusType: 'reserved-fixed',
+      startTime: new Date(currentTime),
+      endTime: new Date(currentTime.setHours(currentTime.getHours() + 10)),
+      details: { reservationNumber: 'F001', customerName: '鈴木一郎' },
     });
     
     pieces.push({
       id: `piece-${pieceId++}`,
       pieceLength: 4, // 4 hours
-      pieceColor: STATUS_COLORS.idle,
-      tooltipMessage: 'アイドル',
-      statusType: 'idle',
+      pieceColor: STATUS_COLORS['reserved-temporary'],
+      tooltipMessage: '予約（仮引当）\n予約番号: T003\n顧客: 田中次郎',
+      statusType: 'reserved-temporary',
       startTime: new Date(currentTime),
       endTime: new Date(currentTime.setHours(currentTime.getHours() + 4)),
-      details: {},
+      details: { reservationNumber: 'T003', customerName: '田中次郎' },
+    });
+    
+  } else {
+    // Pattern 3: reserved-fixed -> maintenance -> reserved-fixed
+    pieces.push({
+      id: `piece-${pieceId++}`,
+      pieceLength: 8, // 8 hours
+      pieceColor: STATUS_COLORS['reserved-fixed'],
+      tooltipMessage: '予約（確定）\n予約番号: F002\n顧客: 高橋三郎',
+      statusType: 'reserved-fixed',
+      startTime: new Date(currentTime),
+      endTime: new Date(currentTime.setHours(currentTime.getHours() + 8)),
+      details: { reservationNumber: 'F002', customerName: '高橋三郎' },
+    });
+    
+    pieces.push({
+      id: `piece-${pieceId++}`,
+      pieceLength: 3, // 3 hours
+      pieceColor: STATUS_COLORS.maintenance,
+      tooltipMessage: '整備・修理\n作業: オイル交換',
+      statusType: 'maintenance',
+      startTime: new Date(currentTime),
+      endTime: new Date(currentTime.setHours(currentTime.getHours() + 3)),
+      details: { workType: 'オイル交換' },
+    });
+    
+    pieces.push({
+      id: `piece-${pieceId++}`,
+      pieceLength: 7, // 7 hours
+      pieceColor: STATUS_COLORS['reserved-fixed'],
+      tooltipMessage: '予約（確定）\n予約番号: F003\n顧客: 伊藤四郎',
+      statusType: 'reserved-fixed',
+      startTime: new Date(currentTime),
+      endTime: new Date(currentTime.setHours(currentTime.getHours() + 7)),
+      details: { reservationNumber: 'F003', customerName: '伊藤四郎' },
     });
   }
 
@@ -191,81 +194,81 @@ function generatePieces(baseDate: Date, scenario: 'busy' | 'normal' | 'idle'): S
 export const mockOperations: Operation[] = [
   {
     id: 'op-001',
-    registNumber: '札11-1234',
-    carName: 'アルファード',
+    registNumber: '札11-7890',
+    carName: 'アクア',
     condition: 'A',
-    selfAndOthersDivision: 'C',
-    classCode: 'WCL',
+    selfAndOthersDivision: 'SE',
+    classCode: 'SE',
     dispositionShopName: '麻生駅前',
     usingShopName: '札幌駅北口',
     sectionCode: '1',
     blockCode: '11',
-    pieceInformationList: generatePieces(new Date(), 'busy'),
+    pieceInformationList: generatePieces(new Date(), 'pattern1'),
   },
   {
     id: 'op-002',
-    registNumber: '札11-5678',
-    carName: 'ヴェルファイア',
+    registNumber: '札10-1000',
+    carName: 'ノア',
     condition: 'A',
-    selfAndOthersDivision: 'C',
-    classCode: 'WCL',
+    selfAndOthersDivision: 'WV1',
+    classCode: 'WV1',
     dispositionShopName: '麻生駅前',
     usingShopName: '札幌駅北口',
     sectionCode: '1',
     blockCode: '11',
-    pieceInformationList: generatePieces(new Date(), 'normal'),
+    pieceInformationList: generatePieces(new Date(), 'pattern2'),
   },
   {
     id: 'op-003',
-    registNumber: '札11-9012',
-    carName: 'ハイエース',
+    registNumber: '札11-1111',
+    carName: 'ヴォクシー',
     condition: 'B',
-    selfAndOthersDivision: 'E',
-    classCode: 'WV1',
+    selfAndOthersDivision: 'WV2',
+    classCode: 'WV2',
     dispositionShopName: '札幌駅北口',
     usingShopName: '札幌駅北口',
     sectionCode: '1',
     blockCode: '11',
-    pieceInformationList: generatePieces(new Date(), 'idle'),
+    pieceInformationList: generatePieces(new Date(), 'pattern3'),
   },
   {
     id: 'op-004',
-    registNumber: '札11-3456',
-    carName: 'プリウス',
-    condition: 'A',
-    selfAndOthersDivision: 'C',
+    registNumber: '札12-1222',
+    carName: 'セレナ',
+    condition: 'C',
+    selfAndOthersDivision: 'SE',
     classCode: 'SE',
-    dispositionShopName: '麻生駅前',
-    usingShopName: '札幌駅南口',
+    dispositionShopName: '札幌駅南口',
+    usingShopName: '新札幌',
     sectionCode: '1',
     blockCode: '11',
-    pieceInformationList: generatePieces(new Date(), 'busy'),
+    pieceInformationList: generatePieces(new Date(), 'pattern1'),
   },
   {
     id: 'op-005',
-    registNumber: '札11-7890',
-    carName: 'アクア',
+    registNumber: '札10-1333',
+    carName: 'ステップワゴン',
     condition: 'A',
-    selfAndOthersDivision: 'C',
-    classCode: 'SE',
+    selfAndOthersDivision: 'WCL',
+    classCode: 'WCL',
     dispositionShopName: '麻生駅前',
-    usingShopName: '札幌駅南口',
+    usingShopName: '札幌駅北口',
     sectionCode: '1',
     blockCode: '11',
-    pieceInformationList: generatePieces(new Date(), 'normal'),
+    pieceInformationList: generatePieces(new Date(), 'pattern2'),
   },
-  // Add more vehicles for realistic demo
+  // Add more vehicles with varied patterns
   ...Array.from({ length: 15 }, (_, i) => ({
     id: `op-${String(i + 6).padStart(3, '0')}`,
     registNumber: `札${10 + (i % 3)}-${1000 + i * 111}`,
-    carName: ['ノア', 'ヴォクシー', 'セレナ', 'ステップワゴン', 'フリード'][i % 5],
-    condition: ['A', 'B', 'C'][i % 3],
-    selfAndOthersDivision: ['C', 'E'][i % 2],
+    carName: ['フリード', 'プリウス', 'アルファード', 'ヴェルファイア', 'ハイエース'][i % 5],
+    condition: ['A', 'B', 'C'][i % 3] as 'A' | 'B' | 'C',
+    selfAndOthersDivision: ['C', 'E'][i % 2] as 'C' | 'E',
     classCode: ['WV1', 'WV2', 'SE', 'WCL'][i % 4],
     dispositionShopName: ['麻生駅前', '札幌駅北口', '札幌駅南口'][i % 3],
     usingShopName: ['札幌駅北口', '札幌駅南口', '新札幌'][i % 3],
     sectionCode: String((i % 3) + 1),
     blockCode: String((i % 3) + 1) + String((i % 2) + 1),
-    pieceInformationList: generatePieces(new Date(), ['busy', 'normal', 'idle'][i % 3] as any),
+    pieceInformationList: generatePieces(new Date(), ['pattern1', 'pattern2', 'pattern3'][i % 3] as any),
   })),
 ];
